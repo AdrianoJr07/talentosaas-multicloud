@@ -17,7 +17,7 @@ Fatec Itapira "Ogari de Castro Pacheco" · DSM · Computação em Nuvem I · Pro
 
 | Item | URL |
 |---|---|
-| Frontend (GitHub Pages) | `https://SEU-USUARIO.github.io/talentosaas-multicloud/` |
+| Frontend (GitHub Pages) | `https://AdrianoJr07.github.io/talentosaas-multicloud/` |
 | F1 · AWS Lambda | `https://<id>.lambda-url.us-east-1.on.aws/` |
 | F2 · Azure Functions | `https://func-talentosaas-<sufixo>.azurewebsites.net/api/salario-liquido` |
 | F3 · Google Cloud | `https://southamerica-east1-<projeto>.cloudfunctions.net/talentosaas-trilha` |

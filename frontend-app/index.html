@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TalentoSaaS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Triagem de currículos, salário líquido e trilha de capacitação com funções serverless na AWS, Azure e Google Cloud.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="4" y="3" width="20" height="26" rx="2.5" fill="var(--cell)"/>
+        <path d="M8 10h12M8 15h12M8 20h7" stroke="var(--cell-line)" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="24" cy="23" r="6" fill="var(--sun)"/>
+        <path d="M21.4 23.1l1.8 1.8 3.4-3.6" stroke="var(--cell)" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="brand-name">TalentoSaaS</div>
+        <div class="brand-sub">Gestão de talentos e folha · AWS · Azure · Google Cloud</div>
+      </div>
+    </div>
+    <div class="mode" role="group" aria-label="Modo de execução">
+      <button type="button" id="modo-simulado" class="mode-btn" aria-pressed="true">Simulado</button>
+      <button type="button" id="modo-nuvem" class="mode-btn" aria-pressed="false">Nuvem</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap layout">
+  <!-- ============ Coluna de entrada ============ -->
+  <aside class="panel input-panel">
+    <form id="form" novalidate>
+      <h2 class="panel-title">Candidato e vaga</h2>
+      <div class="field">
+        <label for="vaga">Vaga</label>
+        <select id="vaga"></select>
+        <div class="req-preview" id="req-preview"></div>
+      </div>
+      <div class="custom-vaga" id="custom-vaga" hidden>
+        <div class="field"><label for="v-titulo">Título da vaga</label><input id="v-titulo" type="text" maxlength="80" value="Vaga personalizada"></div>
+        <div class="field"><label for="v-obrig">Competências obrigatórias</label><input id="v-obrig" type="text" value="Python, SQL, Excel"><small class="hint">Separe por vírgula.</small></div>
+        <div class="field"><label for="v-desej">Competências desejáveis</label><input id="v-desej" type="text" value="Power BI, Estatística, Inglês"></div>
+        <div class="field"><label for="v-xp">Experiência mínima</label><div class="input-unit"><input id="v-xp" type="number" min="0" max="30" step="1" value="1"><span>anos</span></div></div>
+      </div>
+      <div class="field">
+        <label for="curriculo">Currículo (texto)</label>
+        <textarea id="curriculo" rows="9" maxlength="20000">Mariana Lopes — Desenvolvedora Front-end. Formada em Desenvolvimento de Software Multiplataforma (Fatec, 2024). Experiência: Estagiária de desenvolvimento web na Agência Pixel (2022 - 2023), criando landing pages com HTML5, CSS3 e JavaScript. Desenvolvedora júnior na LojaFácil (2023 - atual): componentes em React com TypeScript, consumo de APIs REST, versionamento com Git e GitHub, rituais de Scrum. Projetos pessoais em Node.js. Inglês intermediário. Boa comunicação e trabalho em equipe.</textarea>
+        <small class="hint">Exemplo fictício preenchido. Cole o texto de qualquer currículo.</small>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="bruto">Pretensão bruta</label>
+          <div class="input-unit"><input id="bruto" type="number" inputmode="decimal" min="1621" max="200000" step="50" value="4500"><span>R$/mês</span></div>
+        </div>
+        <div class="field">
+          <label for="dependentes">Dependentes</label>
+          <input id="dependentes" type="number" min="0" max="15" step="1" value="1">
+        </div>
+      </div>
+
+      <details class="advanced">
+        <summary>Contrato e trilha</summary>
+        <div class="field-row">
+          <div class="field"><label for="regime">Regime da empresa</label>
+            <select id="regime"><option value="lucro_presumido">Lucro Presumido/Real</option><option value="simples">Simples Nacional</option></select></div>
+          <div class="field"><label for="vt">Vale-transporte</label><div class="input-unit"><input id="vt" type="number" min="0" max="3000" step="10" value="220"><span>R$/mês</span></div></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="horas">Estudo por semana</label><div class="input-unit"><input id="horas" type="number" min="1" max="40" step="1" value="6"><span>h</span></div></div>
+          <div class="field"><label for="pref">Cursos</label>
+            <select id="pref"><option value="gratuito">Só gratuitos</option><option value="qualquer">Gratuitos e pagos</option></select></div>
+        </div>
+      </details>
+
+      <p id="form-erro" class="form-erro" role="alert" hidden></p>
+      <button type="submit" id="btn-calcular" class="btn-primary">Analisar nas 3 nuvens</button>
+    </form>
+
+    <section class="chaos" aria-labelledby="chaos-title">
+      <h3 id="chaos-title" class="panel-title small">Teste de resiliência</h3>
+      <p class="hint">Force a falha de um provedor e veja os outros continuarem.</p>
+      <div class="chaos-grid">
+        <label for="chaos-aws"><span class="prov-dot aws"></span>AWS</label>
+        <select id="chaos-aws" data-prov="aws"><option value="">Normal</option><option value="erro">Erro 500</option><option value="lento">Lento (timeout)</option><option value="offline">Fora do ar</option></select>
+        <label for="chaos-azure"><span class="prov-dot azure"></span>Azure</label>
+        <select id="chaos-azure" data-prov="azure"><option value="">Normal</option><option value="erro">Erro 500</option><option value="lento">Lento (timeout)</option><option value="offline">Fora do ar</option></select>
+        <label for="chaos-gcp"><span class="prov-dot gcp"></span>GCP</label>
+        <select id="chaos-gcp" data-prov="gcp"><option value="">Normal</option><option value="erro">Erro 500</option><option value="lento">Lento (timeout)</option><option value="offline">Fora do ar</option></select>
+      </div>
+    </section>
+
+    <details class="endpoints" id="endpoints-box">
+      <summary>Endpoints (modo Nuvem)</summary>
+      <div class="field"><label for="url-aws">AWS Lambda</label><input id="url-aws" type="url" placeholder="https://….lambda-url.us-east-1.on.aws/"></div>
+      <div class="field"><label for="url-azure">Azure Functions</label><input id="url-azure" type="url" placeholder="https://….azurewebsites.net/api/salario-liquido"></div>
+      <div class="field"><label for="url-gcp">Google Cloud</label><input id="url-gcp" type="url" placeholder="https://….run.app"></div>
+      <small class="hint">Só URLs públicas. Ficam salvas neste navegador.</small>
+    </details>
+  </aside>
+
+  <!-- ============ Resultados ============ -->
+  <section class="results" aria-live="polite">
+    <ol class="pipeline" aria-label="Fluxo de orquestração">
+      <li class="step-par">
+        <span class="step-k">Etapa 1 · paralelo (allSettled)</span>
+        <div class="step-par-in">
+          <div class="step" data-prov="aws"><span class="step-n"><span class="prov-dot aws"></span>AWS · ATS</span><span class="step-s" id="st-aws">aguardando</span></div>
+          <div class="step" data-prov="azure"><span class="step-n"><span class="prov-dot azure"></span>Azure · Salário</span><span class="step-s" id="st-azure">aguardando</span></div>
+        </div>
+      </li>
+      <li class="step-arrow" aria-hidden="true">→</li>
+      <li class="step" data-prov="gcp"><span class="step-k">Etapa 2 · cascata (usa o ATS)</span><span class="step-n"><span class="prov-dot gcp"></span>GCP · Trilha</span><span class="step-s" id="st-gcp">aguardando</span></li>
+    </ol>
+
+    <div class="cards">
+      <article class="card" id="card-aws" data-prov="aws">
+        <header class="card-head">
+          <div><p class="card-k">Triagem ATS</p><h2 class="card-t">Aderência à vaga</h2></div>
+          <span class="badge" id="badge-aws">AWS Lambda</span>
+        </header>
+        <div class="card-body" id="body-aws"></div>
+      </article>
+
+      <article class="card" id="card-azure" data-prov="azure">
+        <header class="card-head">
+          <div><p class="card-k">Folha de pagamento</p><h2 class="card-t">Salário líquido e encargos</h2></div>
+          <span class="badge" id="badge-azure">Azure Functions</span>
+        </header>
+        <div class="card-body" id="body-azure"></div>
+      </article>
+
+      <article class="card" id="card-gcp" data-prov="gcp">
+        <header class="card-head">
+          <div><p class="card-k">Desenvolvimento</p><h2 class="card-t">Trilha de capacitação</h2></div>
+          <span class="badge" id="badge-gcp">Google Cloud</span>
+        </header>
+        <div class="card-body" id="body-gcp"></div>
+      </article>
+    </div>
+
+    <section class="panel metrics" aria-labelledby="metrics-title">
+      <div class="metrics-head">
+        <div>
+          <h2 id="metrics-title" class="panel-title">Latência por provedor</h2>
+          <p class="hint">Cada requisição fica registrada. A primeira após inatividade é cold start; as seguintes, warm.</p>
+        </div>
+        <div class="metrics-actions">
+          <button type="button" class="btn" id="btn-bench">Benchmark (10× cada)</button>
+          <button type="button" class="btn" id="btn-cold">Simular inatividade</button>
+          <button type="button" class="btn" id="btn-csv">Copiar CSV</button>
+          <button type="button" class="btn ghost" id="btn-limpar">Limpar</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table class="summary" id="summary"></table></div>
+      <details class="log">
+        <summary>Registro de requisições (<span id="log-count">0</span>)</summary>
+        <div class="table-wrap"><table class="log-table" id="log"></table></div>
+      </details>
+      <p class="toast" id="toast" role="status" hidden></p>
+    </section>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  Fatec Itapira · DSM · Computação em Nuvem I · Atividade Prática 04 · Grupo B — Adriano Ferreira, Fabricio Carmo, Lucas Soares e Nefi Moraes.
+  Cálculos com tabelas INSS/IRRF 2026; simulação didática, não substitui a folha oficial.
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

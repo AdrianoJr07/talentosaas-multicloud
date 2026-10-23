@@ -1,0 +1,27 @@
+{
+  "score": 79,
+  "lacunas": [
+    {
+      "nome": "Tailwind",
+      "tipo": "desejavel",
+      "ganhoScore": 5.3
+    },
+    {
+      "nome": "Testes automatizados",
+      "tipo": "desejavel",
+      "ganhoScore": 5.3
+    },
+    {
+      "nome": "Acessibilidade",
+      "tipo": "desejavel",
+      "ganhoScore": 5.3
+    },
+    {
+      "nome": "Figma",
+      "tipo": "desejavel",
+      "ganhoScore": 5.3
+    }
+  ],
+  "horasSemanais": 6,
+  "preferencia": "gratuito"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "talentosaas-gcp-trilha",
+  "version": "1.0.0",
+  "description": "TalentoSaaS — Função 3 (Google Cloud Run functions): Recomendador de Trilha de Capacitação",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "functions-framework --target=recomendarTrilha --port=8080",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^4.0.0"
+  },
+  "engines": { "node": ">=22" },
+  "license": "MIT"
+}

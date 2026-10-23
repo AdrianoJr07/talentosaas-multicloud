@@ -1,0 +1,13 @@
+{
+  "name": "talentosaas-aws-ats",
+  "version": "1.0.0",
+  "description": "TalentoSaaS — Função 1 (AWS Lambda): Analisador de Aderência de Currículo (ATS)",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "zip": "rm -f funcao.zip && zip -r funcao.zip index.mjs src package.json"
+  },
+  "engines": { "node": ">=22" },
+  "license": "MIT"
+}

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>TalentoSaaS — Entrega 1: Arquitetura e Fluxo</title>
+<style>
+  @page { size: A4 landscape; margin: 12mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Inter, sans-serif; color: #0f172a; margin: 0; font-size: 10.5pt; line-height: 1.45; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  header.top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-bottom: 10px; }
+  header.top .inst { font-size: 8.5pt; color: #475569; }
+  h1 { font-size: 20pt; margin: 0; letter-spacing: -0.02em; }
+  h2 { font-size: 13pt; margin: 4px 0 6px; }
+  h3 { font-size: 10.5pt; margin: 10px 0 4px; }
+  p { margin: 4px 0; }
+  .sub { color: #475569; font-size: 10pt; }
+  figure { margin: 6px 0; }
+  figcaption { font-size: 8.5pt; color: #475569; margin-top: 2px; }
+  svg { width: 100%; height: auto; font-family: Inter, sans-serif; }
+  table { border-collapse: collapse; width: 100%; font-size: 8pt; }
+  th, td { border: 1px solid #cbd5e1; padding: 3px 6px; vertical-align: top; text-align: left; }
+  th { background: #0f172a; color: #fff; font-weight: 600; }
+  code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.2pt; background: #f1f5f9; padding: 0 3px; border-radius: 3px; }
+  .tag { display: inline-block; font-size: 7.8pt; font-weight: 700; padding: 1px 6px; border-radius: 999px; color: #fff; }
+  .aws { background: #c26a00; } .az { background: #0067b8; } .gcp { background: #1e8e3e; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; }
+  .muted { color: #64748b; }
+  ul { margin: 2px 0; padding-left: 16px; font-size: 8.6pt; } li { margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- ======================= PÁGINA 1 ======================= -->
+<section class="page">
+  <header class="top">
+    <div>
+      <div class="inst">Fatec Itapira "Ogari de Castro Pacheco" · DSM · Computação em Nuvem I · Prof. Me. Reginaldo Donizeti Cândido</div>
+      <h1>TalentoSaaS — Gestão de Talentos e Folha (RH)</h1>
+      <div class="sub">Atividade Prática 04 · Entrega 1 (19/10/2026): Arquitetura, fluxo da aplicação e distribuição das funções · <b>Grupo B · SaaS de RH</b></div>
+    </div>
+    <div class="inst" style="text-align:right;white-space:nowrap">Integrantes:<br>Adriano Ferreira · Fabricio Carmo<br>Lucas Soares · Nefi Moraes</div>
+  </header>
+
+  <p><b>Problema de negócio.</b> O RH recebe um currículo para uma vaga e precisa decidir rápido: o candidato atende aos requisitos, quanto ele vai receber e custar,
+  e o que precisa estudar para fechar as lacunas. O TalentoSaaS faz a triagem ATS (<span class="tag aws">AWS</span>) e o cálculo de salário líquido e encargos (<span class="tag az">Azure</span>)
+  <b>em paralelo</b> (<code>Promise.allSettled</code>); em seguida, o score e as lacunas do ATS alimentam, <b>em cascata</b>, o recomendador de trilha de capacitação (<span class="tag gcp">GCP</span>).</p>
+
+  <figure>
+    <svg viewBox="0 0 1060 470" role="img" aria-label="Arquitetura: o navegador baixa o SPA do GitHub Pages e chama, por HTTPS/JSON, em paralelo o ATS na AWS e o cálculo de salário no Azure; depois chama em cascata a trilha no Google Cloud com o resultado do ATS; cada nuvem registra logs no seu serviço de monitoramento.">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f172a"/></marker>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+      </defs>
+
+      <!-- Usuário -->
+      <rect x="10" y="175" width="120" height="90" rx="8" fill="#f8fafc" stroke="#0f172a"/>
+      <text x="70" y="208" text-anchor="middle" font-size="13" font-weight="700">Usuário</text>
+      <text x="70" y="227" text-anchor="middle" font-size="11" fill="#475569">Navegador</text>
+      <text x="70" y="243" text-anchor="middle" font-size="11" fill="#475569">desktop / celular</text>
+
+      <!-- Hospedagem -->
+      <rect x="170" y="40" width="200" height="86" rx="8" fill="#f8fafc" stroke="#0f172a"/>
+      <text x="270" y="65" text-anchor="middle" font-size="12.5" font-weight="700">GitHub Pages (CDN)</text>
+      <text x="270" y="83" text-anchor="middle" font-size="10.5" fill="#475569">Static Web Hosting · HTTPS</text>
+      <text x="270" y="99" text-anchor="middle" font-size="10.5" fill="#475569">index.html · css · js</text>
+      <text x="270" y="115" text-anchor="middle" font-size="10" fill="#64748b">/frontend-app</text>
+
+      <!-- SPA / orquestrador -->
+      <rect x="170" y="160" width="200" height="190" rx="8" fill="#eef2ff" stroke="#3730a3" stroke-width="1.5"/>
+      <text x="270" y="184" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1e1b4b">SPA TalentoSaaS</text>
+      <text x="270" y="200" text-anchor="middle" font-size="10.5" fill="#3730a3">orquestrador no navegador</text>
+      <text x="184" y="225" font-size="10.5">• fetch + AbortController (8 s)</text>
+      <text x="184" y="243" font-size="10.5">• (AWS ∥ Azure) → GCP</text>
+      <text x="184" y="261" font-size="10.5">• Promise.allSettled</text>
+      <text x="184" y="279" font-size="10.5">• fallback local por módulo</text>
+      <text x="184" y="297" font-size="10.5">• latência ms · cold / warm</text>
+      <text x="184" y="315" font-size="10.5">• modo simulado + painel caos</text>
+      <text x="184" y="333" font-size="10.5">• config.js: só URLs públicas</text>
+
+      <!-- user → pages / spa -->
+      <path d="M130 200 C150 150 150 100 168 90" fill="none" stroke="#64748b" stroke-width="1.4" marker-end="url(#a2)"/>
+      <text x="96" y="120" font-size="10" fill="#64748b">1. GET site</text>
+      <line x1="270" y1="126" x2="270" y2="158" stroke="#64748b" stroke-width="1.4" marker-end="url(#a2)"/>
+      <text x="278" y="146" font-size="10" fill="#64748b">carrega SPA</text>
+      <line x1="130" y1="240" x2="168" y2="240" stroke="#64748b" stroke-width="1.4" marker-end="url(#a2)"/>
+
+      <!-- AWS -->
+      <rect x="540" y="20" width="510" height="130" rx="8" fill="#fff7ed" stroke="#c26a00" stroke-width="1.5"/>
+      <text x="556" y="42" font-size="12" font-weight="700" fill="#9a3412">AWS · us-east-1</text>
+      <rect x="556" y="55" width="140" height="74" rx="6" fill="#fff" stroke="#c26a00"/>
+      <text x="626" y="80" text-anchor="middle" font-size="11" font-weight="600">Lambda</text>
+      <text x="626" y="96" text-anchor="middle" font-size="11" font-weight="600">Function URL</text>
+      <text x="626" y="113" text-anchor="middle" font-size="9.5" fill="#64748b">auth NONE · CORS</text>
+      <rect x="716" y="55" width="180" height="74" rx="6" fill="#fff" stroke="#c26a00"/>
+      <text x="806" y="77" text-anchor="middle" font-size="11" font-weight="700">F1 · Analisador ATS</text>
+      <text x="806" y="94" text-anchor="middle" font-size="10.5">aderência do currículo</text>
+      <text x="806" y="111" text-anchor="middle" font-size="9.5" fill="#64748b">Lambda · nodejs22.x · arm64</text>
+      <rect x="916" y="67" width="120" height="50" rx="6" fill="#fff" stroke="#c26a00" stroke-dasharray="4 3"/>
+      <text x="976" y="89" text-anchor="middle" font-size="10.5">CloudWatch</text>
+      <text x="976" y="104" text-anchor="middle" font-size="10.5">Logs</text>
+      <line x1="696" y1="92" x2="714" y2="92" stroke="#0f172a" marker-end="url(#a1)"/>
+      <line x1="896" y1="92" x2="914" y2="92" stroke="#64748b" stroke-dasharray="3 3" marker-end="url(#a2)"/>
+
+      <!-- Azure -->
+      <rect x="540" y="170" width="510" height="130" rx="8" fill="#eff6ff" stroke="#0067b8" stroke-width="1.5"/>
+      <text x="556" y="192" font-size="12" font-weight="700" fill="#1e3a8a">Microsoft Azure · Brazil South</text>
+      <rect x="556" y="205" width="140" height="74" rx="6" fill="#fff" stroke="#0067b8"/>
+      <text x="626" y="230" text-anchor="middle" font-size="11" font-weight="600">HTTP Trigger</text>
+      <text x="626" y="246" text-anchor="middle" font-size="11" font-weight="600">Anonymous</text>
+      <text x="626" y="263" text-anchor="middle" font-size="9.5" fill="#64748b">CORS na plataforma</text>
+      <rect x="716" y="205" width="180" height="74" rx="6" fill="#fff" stroke="#0067b8"/>
+      <text x="806" y="227" text-anchor="middle" font-size="11" font-weight="700">F2 · Salário Líquido</text>
+      <text x="806" y="244" text-anchor="middle" font-size="10.5">INSS · IRRF · encargos</text>
+      <text x="806" y="261" text-anchor="middle" font-size="9.5" fill="#64748b">Functions v4 · Flex Consumption</text>
+      <rect x="916" y="217" width="120" height="50" rx="6" fill="#fff" stroke="#0067b8" stroke-dasharray="4 3"/>
+      <text x="976" y="239" text-anchor="middle" font-size="10.5">Application</text>
+      <text x="976" y="254" text-anchor="middle" font-size="10.5">Insights</text>
+      <line x1="696" y1="242" x2="714" y2="242" stroke="#0f172a" marker-end="url(#a1)"/>
+      <line x1="896" y1="242" x2="914" y2="242" stroke="#64748b" stroke-dasharray="3 3" marker-end="url(#a2)"/>
+
+      <!-- GCP -->
+      <rect x="540" y="320" width="510" height="130" rx="8" fill="#f0fdf4" stroke="#1e8e3e" stroke-width="1.5"/>
+      <text x="556" y="342" font-size="12" font-weight="700" fill="#14532d">Google Cloud · southamerica-east1</text>
+      <rect x="556" y="355" width="140" height="74" rx="6" fill="#fff" stroke="#1e8e3e"/>
+      <text x="626" y="380" text-anchor="middle" font-size="11" font-weight="600">Gatilho HTTP</text>
+      <text x="626" y="396" text-anchor="middle" font-size="11" font-weight="600">allUsers invoker</text>
+      <text x="626" y="413" text-anchor="middle" font-size="9.5" fill="#64748b">CORS no código</text>
+      <rect x="716" y="355" width="180" height="74" rx="6" fill="#fff" stroke="#1e8e3e"/>
+      <text x="806" y="377" text-anchor="middle" font-size="11" font-weight="700">F3 · Trilha de</text>
+      <text x="806" y="394" text-anchor="middle" font-size="10.5">Capacitação</text>
+      <text x="806" y="411" text-anchor="middle" font-size="9.5" fill="#64748b">Cloud Run functions · Node 22</text>
+      <rect x="916" y="367" width="120" height="50" rx="6" fill="#fff" stroke="#1e8e3e" stroke-dasharray="4 3"/>
+      <text x="976" y="389" text-anchor="middle" font-size="10.5">Cloud</text>
+      <text x="976" y="404" text-anchor="middle" font-size="10.5">Logging</text>
+      <line x1="696" y1="392" x2="714" y2="392" stroke="#0f172a" marker-end="url(#a1)"/>
+      <line x1="896" y1="392" x2="914" y2="392" stroke="#64748b" stroke-dasharray="3 3" marker-end="url(#a2)"/>
+
+      <!-- SPA → clouds -->
+      <path d="M370 180 H455 V92 H554" fill="none" stroke="#c26a00" stroke-width="2" marker-end="url(#a1)"/>
+      <text x="462" y="84" font-size="10.5" font-weight="700" fill="#9a3412">2a. POST JSON</text>
+      <text x="462" y="108" font-size="9.5" fill="#9a3412">paralelo a 2b</text>
+      <path d="M370 242 H554" fill="none" stroke="#0067b8" stroke-width="2" marker-end="url(#a1)"/>
+      <text x="462" y="236" font-size="10.5" font-weight="700" fill="#1e3a8a">2b. POST JSON</text>
+      <path d="M370 330 H455 V392 H554" fill="none" stroke="#1e8e3e" stroke-width="2" marker-end="url(#a1)"/>
+      <text x="462" y="384" font-size="10.5" font-weight="700" fill="#14532d">3. POST JSON</text>
+      <text x="462" y="408" font-size="9.5" fill="#14532d">cascata (depois)</text>
+      <text x="462" y="421" font-size="9.5" fill="#475569">usa score + lacunas</text>
+      
+    </svg>
+    <figcaption><b>Figura 1 — Arquitetura da solução.</b> Usuário → Hospedagem do Frontend → Requisições HTTPS/JSON → AWS / Azure / GCP. Nenhuma credencial fica no frontend: os três endpoints são públicos e o SPA guarda apenas as URLs. Linhas tracejadas = logs enviados ao monitoramento de cada nuvem (usado na “Auditoria nos Consoles”).</figcaption>
+  </figure>
+</section>
+
+<!-- ======================= PÁGINA 2 ======================= -->
+<section class="page">
+  <h2>Fluxo da aplicação (orquestração paralelo + cascata, com degradação graciosa)</h2>
+  <figure>
+    <svg viewBox="0 0 1060 520" role="img" aria-label="Diagrama de sequência: o frontend chama AWS e Azure em paralelo; com o score e as lacunas do ATS (ou do fallback local) chama o Google Cloud em cascata; cada falha só afeta o seu card.">
+      <defs>
+        <marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f172a"/></marker>
+      </defs>
+      <!-- lifelines -->
+      <g font-size="12" font-weight="700" text-anchor="middle">
+        <rect x="30" y="8" width="120" height="30" rx="6" fill="#f8fafc" stroke="#0f172a"/><text x="90" y="28">Usuário</text>
+        <rect x="230" y="8" width="160" height="30" rx="6" fill="#eef2ff" stroke="#3730a3"/><text x="310" y="28" fill="#1e1b4b">Frontend (SPA)</text>
+        <rect x="490" y="8" width="150" height="30" rx="6" fill="#fff7ed" stroke="#c26a00"/><text x="565" y="28" fill="#9a3412">AWS · F1</text>
+        <rect x="700" y="8" width="150" height="30" rx="6" fill="#eff6ff" stroke="#0067b8"/><text x="775" y="28" fill="#1e3a8a">Azure · F2</text>
+        <rect x="890" y="8" width="150" height="30" rx="6" fill="#f0fdf4" stroke="#1e8e3e"/><text x="965" y="28" fill="#14532d">GCP · F3</text>
+      </g>
+      <g stroke="#94a3b8" stroke-dasharray="4 4">
+        <line x1="90" y1="38" x2="90" y2="510"/><line x1="310" y1="38" x2="310" y2="510"/>
+        <line x1="565" y1="38" x2="565" y2="510"/><line x1="775" y1="38" x2="775" y2="510"/><line x1="965" y1="38" x2="965" y2="510"/>
+      </g>
+
+      <g font-size="10.5">
+        <!-- 1 -->
+        <line x1="90" y1="66" x2="306" y2="66" stroke="#0f172a" marker-end="url(#b1)"/>
+        <text x="100" y="60">① vaga, currículo, salário bruto, dependentes</text>
+        <path d="M310 82 h40 v18 h-36" fill="none" stroke="#0f172a" marker-end="url(#b1)"/>
+        <text x="356" y="95">② valida no cliente (texto mínimo, salário ≥ mínimo 2026)</text>
+
+        <!-- par etapa 1 -->
+        <rect x="236" y="112" width="560" height="140" rx="4" fill="none" stroke="#3730a3" stroke-dasharray="6 3"/>
+        <text x="244" y="128" font-weight="700" fill="#3730a3">par  Etapa 1 · Promise.allSettled([F1, F2])</text>
+        <line x1="310" y1="150" x2="561" y2="150" stroke="#c26a00" stroke-width="1.8" marker-end="url(#b1)"/>
+        <text x="320" y="144" fill="#9a3412" font-weight="600">③ POST {curriculo, vagaId | vaga}</text>
+        <line x1="310" y1="178" x2="771" y2="178" stroke="#0067b8" stroke-width="1.8" marker-end="url(#b1)"/>
+        <text x="580" y="172" fill="#1e3a8a" font-weight="600">④ POST {salarioBruto, dependentes, regime}</text>
+        <line x1="565" y1="206" x2="314" y2="206" stroke="#c26a00" stroke-dasharray="5 3" marker-end="url(#b1)"/>
+        <text x="320" y="200" fill="#9a3412">200 {score, classificacao, competencias, lacunas[ganhoScore]}</text>
+        <line x1="775" y1="236" x2="314" y2="236" stroke="#0067b8" stroke-dasharray="5 3" marker-end="url(#b1)"/>
+        <text x="420" y="230" fill="#1e3a8a">200 {liquido, INSS, IRRF, custo empresa}</text>
+
+        <!-- alt AWS -->
+        <rect x="236" y="262" width="560" height="44" rx="4" fill="#fef2f2" stroke="#b91c1c" stroke-dasharray="4 3"/>
+        <text x="244" y="278" font-weight="700" fill="#b91c1c">alt  F1 ou F2 “rejected” (5xx / rede / timeout 8 s)</text>
+        <text x="244" y="295" fill="#7f1d1d">aviso “Serviço Temporariamente Indisponível” só no card; F1 recalculada localmente para a cascata seguir</text>
+
+        <!-- cascata -->
+        <line x1="310" y1="336" x2="961" y2="336" stroke="#1e8e3e" stroke-width="1.8" marker-end="url(#b1)"/>
+        <text x="420" y="330" fill="#14532d" font-weight="600">⑤ Etapa 2 · cascata: POST {score, lacunas, horasSemanais, preferencia}</text>
+        <line x1="965" y1="364" x2="314" y2="364" stroke="#1e8e3e" stroke-dasharray="5 3" marker-end="url(#b1)"/>
+        <text x="560" y="358" fill="#14532d">200 {trilha[], semanas, scoreProjetado, certificacoes}</text>
+
+        <rect x="236" y="380" width="810" height="44" rx="4" fill="#fef2f2" stroke="#b91c1c" stroke-dasharray="4 3"/>
+        <text x="244" y="396" font-weight="700" fill="#b91c1c">alt  F3 falha</text>
+        <text x="244" y="413" fill="#7f1d1d">só o card da trilha mostra o aviso + “Tentar novamente” e “Usar estimativa local”; ATS e salário continuam na tela</text>
+
+        <!-- final -->
+        <line x1="310" y1="460" x2="94" y2="460" stroke="#0f172a" marker-end="url(#b1)"/>
+        <text x="100" y="454">⑥ dashboard unificado</text>
+        <text x="100" y="478" fill="#475569">selos “Processed by AWS / Azure / GCP” · latência (ms) · cold / warm start</text>
+      </g>
+    </svg>
+    <figcaption><b>Figura 2 — Diagrama de sequência.</b> Etapa 1: ATS (AWS) e salário (Azure) não dependem um do outro, então rodam em paralelo. Etapa 2: a trilha (GCP) precisa do score e das lacunas do ATS, por isso vem em cascata. F1 tem fallback local completo para a cascata nunca travar.</figcaption>
+  </figure>
+</section>
+
+<!-- ======================= PÁGINA 3 ======================= -->
+<section class="page">
+  <h2>Qual função roda em cada plataforma</h2>
+  <table>
+    <tr><th style="width:15%">Plataforma</th><th style="width:19%">Função</th><th style="width:22%">Entrada (Request JSON)</th><th style="width:24%">Saída (Response JSON)</th><th>Serviço e configuração</th></tr>
+    <tr><td><span class="tag aws">AWS</span><br>Lambda · us-east-1</td>
+      <td><b>F1 — Analisador de Aderência de Currículo (ATS)</b><br><span class="muted">O candidato atende à vaga?</span></td>
+      <td><code>curriculo</code> (texto), <code>vagaId</code> (5 vagas prontas) ou <code>vaga</code> {obrigatorias, desejaveis, experienciaMinAnos}</td>
+      <td><b>score 0–100%</b>, classificação, recomendação, competências encontradas (com nº de menções), <b>lacunas</b> com ganho de score, anos de experiência, diferenciais</td>
+      <td>Node.js 22 (arm64, 256 MB, 15 s) · <b>Lambda Function URL</b> auth NONE · CORS na URL · permissões <code>InvokeFunctionUrl</code> + <code>InvokeFunction</code> · CloudWatch (sem gravar o texto do currículo — LGPD)</td></tr>
+    <tr><td><span class="tag az">Azure</span><br>Functions · Brazil South</td>
+      <td><b>F2 — Calculadora de Salário Líquido e Encargos</b><br><span class="muted">Quanto recebe e quanto custa?</span></td>
+      <td><code>salarioBruto</code>, <code>dependentes</code>, <code>regime</code> (lucro presumido / simples), <code>valeTransporte</code></td>
+      <td>INSS progressivo 2026 faixa a faixa, IRRF 2026 com <b>redução da Lei 15.270/2025</b> e desconto simplificado, VT 6%, <b>líquido</b>, alíquota efetiva, custo da empresa (FGTS, CPP, RAT, terceiros, 13º, férias + 1/3)</td>
+      <td>Functions v4, Node 22, plano <b>Flex Consumption</b> · <b>HTTP Trigger anonymous</b> · rota <code>/api/salario-liquido</code> · CORS na plataforma · Application Insights</td></tr>
+    <tr><td><span class="tag gcp">GCP</span><br>Cloud Run functions · southamerica-east1</td>
+      <td><b>F3 — Recomendador de Trilha de Capacitação</b><br><span class="muted">O que estudar para fechar as lacunas?</span></td>
+      <td><code>score</code> e <code>lacunas</code> (vindos da F1), <code>horasSemanais</code>, <code>preferencia</code> (gratuito / qualquer)</td>
+      <td>trilha ordenada (obrigatórias primeiro) com cursos e certificações, plataforma, horas, <b>semana de início/fim</b>, data prevista de conclusão e <b>score projetado</b></td>
+      <td>Node 22, gatilho HTTP, <b>invocações não autenticadas</b> · CORS tratado no código (<code>ALLOWED_ORIGINS</code>) · Cloud Logging</td></tr>
+  </table>
+
+  <div class="grid2" style="margin-top:10px">
+    <div class="box">
+      <h3 style="margin-top:0">Padrões comuns às três funções</h3>
+      <ul>
+        <li><code>Content-Type: application/json</code> na entrada e na saída.</li>
+        <li><b>200</b> sucesso · <b>400</b> validação (lista <code>detalhes</code>) · <b>500</b> falha interna · <b>405</b> método.</li>
+        <li><code>GET</code> = health check (aquece a função e testa o CORS).</li>
+        <li>Toda resposta traz <code>meta</code>: provedor, região, <code>coldStart</code>, <code>durationMs</code>, <code>requestId</code>.</li>
+        <li><code>?chaos=erro</code> força 500 e <code>?chaos=lento</code> passa do timeout — usados no teste de resiliência ao vivo.</li>
+        <li>Lógica de negócio em módulo puro, testada com <code>node --test</code>.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3 style="margin-top:0">Por que esse nível é moderado/difícil</h3>
+      <ul>
+        <li><b>Paralelo + cascata</b> no mesmo fluxo, com fallback que preserva a cascata.</li>
+        <li>ATS com normalização de acentos, dicionário de sinônimos (ex.: k8s = Kubernetes) e pesos.</li>
+        <li>Experiência estimada pelos períodos do currículo, sem contar sobreposição.</li>
+        <li>Legislação real de 2026: INSS progressivo, IRRF com redutor da Lei 15.270/2025.</li>
+        <li>CORS configurado de <b>três formas diferentes</b> (URL, plataforma, código).</li>
+        <li>Métricas de cold/warm start registradas e exportáveis em CSV.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Cronograma</h3>
+  <table>
+    <tr><th style="width:14%">Data</th><th style="width:28%">Entrega</th><th>Conteúdo</th></tr>
+    <tr><td>19/10/2026</td><td>1. Planejamento e desenho</td><td>Este documento: tema, arquitetura, fluxo e distribuição das funções.</td></tr>
+    <tr><td>26/10/2026</td><td>2. Frontend publicado</td><td>SPA no GitHub Pages em <b>modo simulado</b> (mesma lógica das funções no navegador, latência e cold start simulados, painel de caos).</td></tr>
+    <tr><td>16/11/2026</td><td>3. Projeto final + apresentação</td><td>Deploy nas 3 nuvens, troca para modo “Nuvem”, medições cold/warm, relatório PDF, README e demonstração com queda de um provedor.</td></tr>
+  </table>
+</section>
+</body>
+</html>

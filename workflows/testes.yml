@@ -1,0 +1,14 @@
+name: Testes das funções
+on: [push, pull_request]
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pasta: [aws-lambda, azure-functions, google-functions]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node --test test/*.test.mjs
+        working-directory: ${{ matrix.pasta }}

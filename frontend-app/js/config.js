@@ -1,19 +1,14 @@
+
 /**
  * Configuração pública do TalentoSaaS.
- *
- * Aqui ficam SOMENTE as URLs públicas dos endpoints. Nunca coloque chaves
- * de API, tokens ou credenciais neste arquivo — ele é baixado por qualquer
- * visitante do site.
- *
- * Depois do deploy (Entrega final), cole as URLs abaixo e troque
- * MODO_PADRAO para 'nuvem'.
+ * Nunca coloque tokens ou credenciais neste arquivo.
  */
 export const CONFIG = {
-  MODO_PADRAO: 'simulado', // 'simulado' | 'nuvem'
+  MODO_PADRAO: 'simulado',
   TIMEOUT_MS: 8000,
   ENDPOINTS: {
-    aws: 'https://zxgibqzcwzqomj7wnbuibocdea0belvx.lambda-url.us-east-1.on.aws/',   // ex.: https://abc123.lambda-url.us-east-1.on.aws/
-    azure: '', // ex.: https://func-talentosaas-grupob.azurewebsites.net/api/salario-liquido
-    gcp: '',   // ex.: https://southamerica-east1-<projeto>.cloudfunctions.net/talentosaas-trilha
+    aws: 'https://zxgibqzcwzqomj7wnbuibocdea0belvx.lambda-url.us-east-1.on.aws/',
+    azure: 'https://talentosaas-salario.graybay-d6e2add8.brazilsouth.azurecontainerapps.io/api/salario-liquido',
+    gcp: '',
   },
 };

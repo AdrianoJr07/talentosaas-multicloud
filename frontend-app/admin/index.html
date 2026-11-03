@@ -229,6 +229,45 @@
   </main>
 
 </div>
+<script>
+  function carregarCandidaturas() {
+    const candidaturas = JSON.parse(
+      localStorage.getItem('talentosaas_candidaturas') || '[]'
+    );
+
+    const contador = document.getElementById('total-candidaturas');
+    const lista = document.getElementById('lista-candidatos');
+
+    contador.textContent = candidaturas.length;
+
+    if (candidaturas.length === 0) {
+      lista.textContent = 'Nenhuma candidatura recebida até o momento.';
+      return;
+    }
+
+    lista.replaceChildren();
+
+    candidaturas.forEach((candidato) => {
+      const card = document.createElement('div');
+      card.style.padding = '15px';
+      card.style.borderBottom = '1px solid #304039';
+
+      const nome = document.createElement('h3');
+      nome.textContent = candidato.nome || 'Nome não informado';
+
+      const vaga = document.createElement('p');
+      vaga.textContent = 'Vaga: ' + (candidato.vaga || 'Não informada');
+
+      const email = document.createElement('p');
+      email.textContent = 'E-mail: ' + (candidato.email || 'Não informado');
+
+      card.append(nome, vaga, email);
+      lista.appendChild(card);
+    });
+  }
+
+  carregarCandidaturas();
+</script>
 
 </body>
 </html>

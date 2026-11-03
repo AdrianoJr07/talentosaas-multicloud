@@ -18,7 +18,7 @@ import { recomendarTrilha } from './core/trilha.js';
 const PROVEDORES = {
   aws:   { nome: 'AWS Lambda',      regiao: 'us-east-1',          metodo: 'POST /' },
   azure: { nome: 'Azure Functions', regiao: 'brazilsouth',        metodo: 'POST /api/salario-liquido' },
-  gcp:   { nome: 'Google Cloud',    regiao: 'southamerica-east1', metodo: 'POST /' },
+  gcp: { nome: 'Cloudflare Workers', regiao: 'gru',               metodo: 'POST /' },
 };
 // Perfil de latência do modo simulado (ms) — ajustado para lembrar medições reais.
 const PERFIL_SIMULADO = {

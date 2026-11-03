@@ -91,7 +91,7 @@
         <select id="chaos-aws" data-prov="aws"><option value="">Normal</option><option value="erro">Erro 500</option><option value="lento">Lento (timeout)</option><option value="offline">Fora do ar</option></select>
         <label for="chaos-azure"><span class="prov-dot azure"></span>Azure</label>
         <select id="chaos-azure" data-prov="azure"><option value="">Normal</option><option value="erro">Erro 500</option><option value="lento">Lento (timeout)</option><option value="offline">Fora do ar</option></select>
-        <label for="chaos-gcp"><span class="prov-dot gcp"></span>GCP</label>
+       <label for="chaos-gcp"><span class="prov-dot gcp"></span>Cloudflare</label>
         <select id="chaos-gcp" data-prov="gcp"><option value="">Normal</option><option value="erro">Erro 500</option><option value="lento">Lento (timeout)</option><option value="offline">Fora do ar</option></select>
       </div>
     </section>
@@ -100,7 +100,7 @@
       <summary>Endpoints (modo Nuvem)</summary>
       <div class="field"><label for="url-aws">AWS Lambda</label><input id="url-aws" type="url" placeholder="https://….lambda-url.us-east-1.on.aws/"></div>
       <div class="field"><label for="url-azure">Azure Functions</label><input id="url-azure" type="url" placeholder="https://….azurewebsites.net/api/salario-liquido"></div>
-      <div class="field"><label for="url-gcp">Google Cloud</label><input id="url-gcp" type="url" placeholder="https://….run.app"></div>
+     <div class="field"><label for="url-gcp">Cloudflare Workers</label><input id="url-gcp" type="url" placeholder="https://….workers.dev/"></div>
       <small class="hint">Só URLs públicas. Ficam salvas neste navegador.</small>
     </details>
   </aside>
@@ -116,7 +116,7 @@
         </div>
       </li>
       <li class="step-arrow" aria-hidden="true">→</li>
-      <li class="step" data-prov="gcp"><span class="step-k">Etapa 2 · cascata (usa o ATS)</span><span class="step-n"><span class="prov-dot gcp"></span>GCP · Trilha</span><span class="step-s" id="st-gcp">aguardando</span></li>
+      <li class="step" data-prov="gcp"><span class="step-k">Etapa 2 · cascata (usa o ATS)</span><span class="step-n"><span class="prov-dot gcp"></span>Cloudflare · Trilha</span><span class="step-s" id="st-gcp">aguardando</span></li>
     </ol>
 
     <div class="cards">

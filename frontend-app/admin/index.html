@@ -233,7 +233,38 @@
   </div>
 </section>
 
-  </main>
+   <section class="panel" id="vagas" hidden>
+  <h2>Gerenciamento de vagas</h2>
+  <p>Cadastre e gerencie as oportunidades disponíveis no TalentoSaaS.</p>
+
+  <h3>Nova vaga</h3>
+
+  <form id="form-vaga">
+    <label for="titulo-vaga">Título da vaga</label>
+    <input
+      type="text"
+      id="titulo-vaga"
+      placeholder="Ex.: Desenvolvedor Front-end Júnior"
+      required
+    >
+
+    <label for="requisitos-vaga">Conhecimentos necessários</label>
+    <textarea
+      id="requisitos-vaga"
+      placeholder="Ex.: HTML, CSS, JavaScript e React"
+      required
+    ></textarea>
+
+    <button type="submit" class="button">
+      Cadastrar vaga
+    </button>
+  </form>
+
+  <h3>Vagas cadastradas</h3>
+  <div id="lista-vagas"></div>
+</section>
+ 
+ </main>
 
 </div>
 <script>

@@ -300,6 +300,30 @@ lista.appendChild(card);
   }
 
   carregarCandidaturas();
+  function mostrarPagina(pagina) {
+  const dashboard = document.getElementById('dashboard');
+  const candidatos = document.getElementById('candidatos');
+
+  dashboard.hidden = pagina !== 'dashboard';
+  candidatos.hidden = pagina !== 'candidatos';
+
+  document.querySelectorAll('.menu a').forEach(link => {
+    link.classList.toggle(
+      'active',
+      link.getAttribute('href') === '#' + pagina
+    );
+  });
+}
+
+document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos"]')
+  .forEach(link => {
+    link.addEventListener('click', function(evento) {
+      evento.preventDefault();
+      mostrarPagina(this.getAttribute('href').substring(1));
+    });
+  });
+
+mostrarPagina('dashboard');
 </script>
 
 </body>

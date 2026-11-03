@@ -9,6 +9,6 @@ export const CONFIG = {
   ENDPOINTS: {
     aws: 'https://zxgibqzcwzqomj7wnbuibocdea0belvx.lambda-url.us-east-1.on.aws/',
     azure: 'https://talentosaas-salario.graybay-d6e2add8.brazilsouth.azurecontainerapps.io/api/salario-liquido',
-    gcp: '',
+    gcp: 'https://talentosaas-trilha.adriano-ferreirajr23.workers.dev/',
   },
 };

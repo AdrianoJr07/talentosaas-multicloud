@@ -238,3 +238,30 @@ button:focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 3px;
 }
+
+/* Ajuste final das cores */
+
+/* Verde mais claro nos botões */
+button,
+button[type="submit"],
+.btn-primary {
+  background: #2f9e88;
+  border-color: #2f9e88;
+  color: #ffffff;
+}
+
+button:hover,
+button[type="submit"]:hover,
+.btn-primary:hover {
+  background: #278675;
+  border-color: #278675;
+}
+
+/* Links do cabeçalho em branco */
+header nav a {
+  color: #ffffff;
+}
+
+header nav a:hover {
+  color: #a8d9cb;
+}

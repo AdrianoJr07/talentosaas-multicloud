@@ -259,10 +259,41 @@
       vaga.textContent = 'Vaga: ' + (candidato.vaga || 'Não informada');
 
       const email = document.createElement('p');
-      email.textContent = 'E-mail: ' + (candidato.email || 'Não informado');
+email.textContent = 'E-mail: ' + (candidato.email || 'Não informado');
 
-      card.append(nome, vaga, email);
-      lista.appendChild(card);
+// Botão para visualizar o currículo
+const botao = document.createElement('button');
+botao.textContent = 'Visualizar currículo';
+botao.className = 'button';
+botao.type = 'button';
+botao.style.border = 'none';
+botao.style.cursor = 'pointer';
+
+// Área onde o currículo será exibido
+const curriculo = document.createElement('div');
+curriculo.style.display = 'none';
+curriculo.style.marginTop = '15px';
+curriculo.style.padding = '15px';
+curriculo.style.background = '#101816';
+curriculo.style.borderRadius = '8px';
+curriculo.style.whiteSpace = 'pre-wrap';
+curriculo.style.overflowWrap = 'anywhere';
+
+curriculo.textContent =
+  candidato.curriculo || 'Nenhum currículo em texto informado.';
+
+// Abrir e fechar o currículo
+botao.addEventListener('click', function() {
+  const aberto = curriculo.style.display !== 'none';
+
+  curriculo.style.display = aberto ? 'none' : 'block';
+  botao.textContent = aberto
+    ? 'Visualizar currículo'
+    : 'Ocultar currículo';
+});
+
+card.append(nome, vaga, email, botao, curriculo);
+lista.appendChild(card);
     });
   }
 

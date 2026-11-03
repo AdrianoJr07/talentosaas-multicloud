@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vagas | TalentoSaaS</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <header>
+    <h1>TalentoSaaS</h1>
+    <p>Encontre sua próxima oportunidade profissional.</p>
+    <nav>
+      <a href="vagas.html">Vagas disponíveis</a>
+      <a href="admin/">Área administrativa</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Vagas disponíveis</h2>
+      <p>Escolha uma oportunidade e envie seu currículo.</p>
+
+      <article>
+        <h3>Desenvolvedor(a) Front-end Júnior</h3>
+        <p>Conhecimentos: HTML, CSS, JavaScript e React.</p>
+        <button type="button" onclick="selecionarVaga('Desenvolvedor(a) Front-end Júnior')">
+          Candidatar-se
+        </button>
+      </article>
+
+      <article>
+        <h3>Analista de Dados Júnior</h3>
+        <p>Conhecimentos: Python, SQL e Power BI.</p>
+        <button type="button" onclick="selecionarVaga('Analista de Dados Júnior')">
+          Candidatar-se
+        </button>
+      </article>
+
+      <article>
+        <h3>Desenvolvedor(a) Back-end Júnior</h3>
+        <p>Conhecimentos: Node.js, APIs REST e bancos de dados.</p>
+        <button type="button" onclick="selecionarVaga('Desenvolvedor(a) Back-end Júnior')">
+          Candidatar-se
+        </button>
+      </article>
+    </section>
+
+    <section id="candidatura">
+      <h2>Enviar candidatura</h2>
+
+      <form id="form-candidatura">
+        <label for="nome">Nome completo</label>
+        <input id="nome" type="text" required>
+
+        <label for="email">E-mail</label>
+        <input id="email" type="email" required>
+
+        <label for="vaga">Vaga selecionada</label>
+        <input id="vaga" type="text" readonly required>
+
+        <label for="curriculo">Escreva seu currículo</label>
+        <textarea id="curriculo" rows="8"
+          placeholder="Descreva sua formação, experiências e habilidades..."></textarea>
+
+        <label for="arquivo">Ou selecione um arquivo (PDF ou TXT)</label>
+        <input id="arquivo" type="file" accept=".pdf,.txt">
+
+        <button type="submit">Enviar candidatura</button>
+      </form>
+
+      <p id="mensagem"></p>
+    </section>
+  </main>
+
+  <script>
+    function selecionarVaga(nome) {
+      document.getElementById('vaga').value = nome;
+      document.getElementById('candidatura').scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+
+    document.getElementById('form-candidatura')
+      .addEventListener('submit', function(evento) {
+        evento.preventDefault();
+
+        document.getElementById('mensagem').textContent =
+          'Formulário preenchido! O envio será habilitado na próxima etapa.';
+      });
+  </script>
+</body>
+</html>

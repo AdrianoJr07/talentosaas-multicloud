@@ -336,12 +336,14 @@ lista.appendChild(card);
   }
 
   carregarCandidaturas();
-  function mostrarPagina(pagina) {
+ function mostrarPagina(pagina) {
   const dashboard = document.getElementById('dashboard');
   const candidatos = document.getElementById('candidatos');
+  const vagas = document.getElementById('vagas');
 
   dashboard.hidden = pagina !== 'dashboard';
   candidatos.hidden = pagina !== 'candidatos';
+  vagas.hidden = pagina !== 'vagas';
 
   document.querySelectorAll('.menu a').forEach(link => {
     link.classList.toggle(
@@ -351,7 +353,15 @@ lista.appendChild(card);
   });
 }
 
-document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos"]')
+  document.querySelectorAll('.menu a').forEach(link => {
+    link.classList.toggle(
+      'active',
+      link.getAttribute('href') === '#' + pagina
+    );
+  });
+}
+
+document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos"], .menu a[href="#vagas"]')
   .forEach(link => {
     link.addEventListener('click', function(evento) {
       evento.preventDefault();

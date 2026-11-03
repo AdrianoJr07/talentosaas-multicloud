@@ -409,6 +409,65 @@ document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos
   });
 
 mostrarPagina('dashboard');
+
+// Cadastro de vagas no localStorage
+const formVaga = document.getElementById('form-vaga');
+const listaVagas = document.getElementById('lista-vagas');
+
+function carregarVagas() {
+  const vagas = JSON.parse(
+    localStorage.getItem('talentosaas_vagas') || '[]'
+  );
+
+  listaVagas.replaceChildren();
+
+  if (vagas.length === 0) {
+    listaVagas.textContent = 'Nenhuma vaga cadastrada ainda.';
+    return;
+  }
+
+  vagas.forEach((vaga) => {
+    const card = document.createElement('div');
+    card.style.padding = '15px';
+    card.style.borderBottom = '1px solid #304039';
+
+    const titulo = document.createElement('h3');
+    titulo.textContent = vaga.titulo;
+
+    const requisitos = document.createElement('p');
+    requisitos.textContent = 'Conhecimentos: ' + vaga.requisitos;
+
+    card.append(titulo, requisitos);
+    listaVagas.appendChild(card);
+  });
+}
+
+formVaga.addEventListener('submit', function(evento) {
+  evento.preventDefault();
+
+  const titulo = document.getElementById('titulo-vaga').value.trim();
+  const requisitos = document.getElementById('requisitos-vaga').value.trim();
+
+  if (!titulo || !requisitos) return;
+
+  const vagas = JSON.parse(
+    localStorage.getItem('talentosaas_vagas') || '[]'
+  );
+
+  vagas.push({
+    id: Date.now(),
+    titulo: titulo,
+    requisitos: requisitos
+  });
+
+  localStorage.setItem('talentosaas_vagas', JSON.stringify(vagas));
+
+  formVaga.reset();
+  carregarVagas();
+});
+
+carregarVagas();
+  
 </script>
 
 </body>

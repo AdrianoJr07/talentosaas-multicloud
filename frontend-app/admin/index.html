@@ -6,6 +6,51 @@
   <title>TalentoSaaS | Administração</title>
 
   <style>
+    
+    /* Formulário de cadastro de vagas */
+#form-vaga {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 25px 0 35px;
+  max-width: 650px;
+}
+
+#form-vaga label {
+  color: #f1f5f3;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#form-vaga input,
+#form-vaga textarea {
+  width: 100%;
+  padding: 14px;
+  background: #101816;
+  color: #ffffff;
+  border: 1px solid #304039;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+#form-vaga textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+#form-vaga input:focus,
+#form-vaga textarea:focus {
+  outline: none;
+  border-color: #32947c;
+}
+
+#form-vaga button {
+  align-self: flex-start;
+  border: none;
+  cursor: pointer;
+}
+    
     * {
       box-sizing: border-box;
     }

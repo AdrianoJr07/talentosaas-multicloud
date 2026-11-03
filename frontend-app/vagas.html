@@ -83,12 +83,35 @@
     }
 
     document.getElementById('form-candidatura')
-      .addEventListener('submit', function(evento) {
-        evento.preventDefault();
+  .addEventListener('submit', function(evento) {
+    evento.preventDefault();
 
-        document.getElementById('mensagem').textContent =
-          'Formulário preenchido! O envio será habilitado na próxima etapa.';
-      });
+    const candidatura = {
+      id: Date.now(),
+      nome: document.getElementById('nome').value,
+      email: document.getElementById('email').value,
+      vaga: document.getElementById('vaga').value,
+      curriculo: document.getElementById('curriculo').value,
+      data: new Date().toLocaleString('pt-BR'),
+      status: 'Pendente'
+    };
+
+    const candidaturas = JSON.parse(
+      localStorage.getItem('talentosaas_candidaturas') || '[]'
+    );
+
+    candidaturas.push(candidatura);
+
+    localStorage.setItem(
+      'talentosaas_candidaturas',
+      JSON.stringify(candidaturas)
+    );
+
+    document.getElementById('mensagem').textContent =
+      'Candidatura registrada com sucesso!';
+
+    document.getElementById('form-candidatura').reset();
+  });
   </script>
 </body>
 </html>

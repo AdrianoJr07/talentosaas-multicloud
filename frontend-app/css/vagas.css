@@ -1,0 +1,184 @@
+/* TalentoSaaS — Página pública de vagas */
+
+:root {
+  --fundo: #f5f7fb;
+  --branco: #ffffff;
+  --texto: #172033;
+  --secundario: #64748b;
+  --primaria: #5757d9;
+  --borda: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+header {
+  background: var(--branco);
+  padding: 28px 8%;
+  border-bottom: 1px solid var(--borda);
+}
+
+header h1 {
+  margin: 0;
+  color: var(--primaria);
+  font-size: 30px;
+}
+
+header p {
+  margin: 5px 0 18px;
+  color: var(--secundario);
+}
+
+nav {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+nav a {
+  color: var(--primaria);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+main {
+  max-width: 1050px;
+  margin: 45px auto;
+  padding: 0 20px;
+}
+
+section {
+  margin-bottom: 45px;
+}
+
+section h2 {
+  margin-bottom: 8px;
+  font-size: 26px;
+}
+
+section > p {
+  color: var(--secundario);
+}
+
+article {
+  background: var(--branco);
+  padding: 26px;
+  margin-top: 18px;
+  border: 1px solid var(--borda);
+  border-radius: 14px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+article h3 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+article p {
+  color: var(--secundario);
+}
+
+button {
+  background: var(--primaria);
+  color: white;
+  border: none;
+  border-radius: 9px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #4141b8;
+  transform: translateY(-1px);
+}
+
+#candidatura {
+  background: var(--branco);
+  padding: 35px;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+label {
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid var(--borda);
+  border-radius: 9px;
+  font: inherit;
+  background: #fff;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--primaria);
+  border-color: transparent;
+}
+
+input[readonly] {
+  background: #f1f5f9;
+}
+
+textarea {
+  resize: vertical;
+}
+
+form button {
+  margin-top: 18px;
+}
+
+#mensagem {
+  margin-top: 18px;
+  font-weight: bold;
+  color: var(--primaria);
+}
+
+@media (max-width: 600px) {
+  header {
+    padding: 22px 6%;
+  }
+
+  main {
+    margin-top: 25px;
+  }
+
+  #candidatura {
+    padding: 22px;
+  }
+
+  section h2 {
+    font-size: 23px;
+  }
+}

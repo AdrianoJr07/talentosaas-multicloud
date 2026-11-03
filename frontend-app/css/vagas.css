@@ -1,12 +1,36 @@
-/* TalentoSaaS — Página pública de vagas */
+/* ==========================================
+   TalentoSaaS — Página pública de vagas
+   Identidade visual do painel administrativo
+   ========================================== */
 
 :root {
-  --fundo: #f5f7fb;
-  --branco: #ffffff;
-  --texto: #172033;
-  --secundario: #64748b;
-  --primaria: #5757d9;
-  --borda: #e2e8f0;
+  --bg: #f3f4ef;
+  --surface: #ffffff;
+  --surface-2: #f8f9f5;
+  --ink: #18211c;
+  --muted: #5a655e;
+  --line: #dde1d8;
+  --accent: #2c3b8a;
+  --accent-ink: #ffffff;
+
+  --f-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, sans-serif;
+
+  --radius: 12px;
+}
+
+/* Tema escuro automático */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101411;
+    --surface: #171d19;
+    --surface-2: #1c231e;
+    --ink: #e6ebe7;
+    --muted: #9ba69f;
+    --line: #2b342e;
+    --accent: #94a3ff;
+    --accent-ink: #0d1230;
+  }
 }
 
 * {
@@ -19,39 +43,43 @@ html {
 
 body {
   margin: 0;
-  background: var(--fundo);
-  color: var(--texto);
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.6;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.6 var(--f-body);
+}
+
+h1, h2, h3 {
+  font-family: var(--f-display);
+  margin-top: 0;
 }
 
 header {
-  background: var(--branco);
-  padding: 28px 8%;
-  border-bottom: 1px solid var(--borda);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 24px max(24px, calc((100% - 1100px) / 2));
 }
 
 header h1 {
-  margin: 0;
-  color: var(--primaria);
-  font-size: 30px;
+  color: var(--ink);
+  font-size: 1.7rem;
+  margin-bottom: 4px;
 }
 
 header p {
-  margin: 5px 0 18px;
-  color: var(--secundario);
+  color: var(--muted);
+  margin: 0 0 14px;
 }
 
 nav {
   display: flex;
-  gap: 20px;
   flex-wrap: wrap;
+  gap: 20px;
 }
 
 nav a {
-  color: var(--primaria);
+  color: var(--accent);
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 nav a:hover {
@@ -59,126 +87,128 @@ nav a:hover {
 }
 
 main {
-  max-width: 1050px;
-  margin: 45px auto;
-  padding: 0 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 42px 20px;
 }
 
-section {
-  margin-bottom: 45px;
+main > section > h2 {
+  font-size: 1.65rem;
+  margin-bottom: 6px;
 }
 
-section h2 {
-  margin-bottom: 8px;
-  font-size: 26px;
+main > section > p {
+  color: var(--muted);
+  margin-bottom: 24px;
 }
 
-section > p {
-  color: var(--secundario);
-}
-
+/* Cards das vagas */
 article {
-  background: var(--branco);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 26px;
-  margin-top: 18px;
-  border: 1px solid var(--borda);
-  border-radius: 14px;
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+  margin-bottom: 18px;
+  transition: border-color .2s, transform .2s;
+}
+
+article:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 article h3 {
-  margin-top: 0;
-  font-size: 20px;
+  font-size: 1.15rem;
+  margin-bottom: 8px;
 }
 
 article p {
-  color: var(--secundario);
+  color: var(--muted);
+  margin: 0 0 18px;
 }
 
+/* Botões */
 button {
-  background: var(--primaria);
-  color: white;
+  background: var(--accent);
+  color: var(--accent-ink);
   border: none;
-  border-radius: 9px;
-  padding: 12px 20px;
-  font-size: 15px;
-  font-weight: bold;
+  border-radius: 7px;
+  padding: 11px 18px;
+  font: 600 14px var(--f-body);
   cursor: pointer;
-  transition: 0.2s;
+  transition: opacity .2s;
 }
 
 button:hover {
-  background: #4141b8;
-  transform: translateY(-1px);
+  opacity: .85;
 }
 
-#candidatura {
-  background: var(--branco);
-  padding: 35px;
-  border: 1px solid var(--borda);
-  border-radius: 16px;
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
+/* Formulário de candidatura */
 form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-top: 24px;
 }
 
 label {
-  font-weight: bold;
-  font-size: 14px;
-  margin-top: 8px;
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 7px;
 }
 
 input,
+select,
 textarea {
   width: 100%;
-  padding: 13px;
-  border: 1px solid var(--borda);
-  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 12px;
+  margin-bottom: 18px;
   font: inherit;
-  background: #fff;
-}
-
-input:focus,
-textarea:focus {
-  outline: 2px solid var(--primaria);
-  border-color: transparent;
-}
-
-input[readonly] {
-  background: #f1f5f9;
 }
 
 textarea {
+  min-height: 160px;
   resize: vertical;
 }
 
-form button {
-  margin-top: 18px;
+input[type="file"] {
+  cursor: pointer;
 }
 
-#mensagem {
-  margin-top: 18px;
-  font-weight: bold;
-  color: var(--primaria);
+small {
+  color: var(--muted);
 }
 
+/* Responsividade */
 @media (max-width: 600px) {
   header {
-    padding: 22px 6%;
+    padding: 20px;
   }
 
   main {
-    margin-top: 25px;
+    padding: 28px 16px;
   }
 
-  #candidatura {
-    padding: 22px;
+  article,
+  form {
+    padding: 20px;
   }
 
-  section h2 {
-    font-size: 23px;
+  nav {
+    gap: 12px;
   }
 }

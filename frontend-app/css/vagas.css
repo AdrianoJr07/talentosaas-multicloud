@@ -211,4 +211,31 @@ small {
   nav {
     gap: 12px;
   }
+
+   /* Botões da página de vagas */
+button,
+button[type="submit"],
+.btn-primary {
+    background-color: #278675;
+    color: #ffffff;
+    border: 1px solid #278675;
+    border-radius: 6px;
+    padding: 12px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
+
+button:hover,
+button[type="submit"]:hover,
+.btn-primary:hover {
+    background-color: #206d60;
+    border-color: #206d60;
+}
+
+button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+}
+
+

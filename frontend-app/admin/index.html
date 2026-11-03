@@ -353,13 +353,7 @@ lista.appendChild(card);
   });
 }
 
-  document.querySelectorAll('.menu a').forEach(link => {
-    link.classList.toggle(
-      'active',
-      link.getAttribute('href') === '#' + pagina
-    );
-  });
-}
+ 
 
 document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos"], .menu a[href="#vagas"]')
   .forEach(link => {

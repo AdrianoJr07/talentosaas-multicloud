@@ -605,6 +605,19 @@ formVaga.addEventListener('submit', function(evento) {
 });
 
 carregarVagas();
+
+  document.getElementById('btn-analisar')
+  .addEventListener('click', function() {
+    const seletor = document.getElementById('selecionar-candidato');
+    const resultado = document.getElementById('resultado-ats');
+
+    if (!seletor.value) {
+      resultado.textContent = 'Selecione um candidato primeiro.';
+      return;
+    }
+
+    resultado.textContent = 'Candidato selecionado. Pronto para análise!';
+  });
   
 </script>
 

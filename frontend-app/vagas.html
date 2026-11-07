@@ -63,8 +63,8 @@
         <input id="vaga" type="text" readonly required>
 
        <label for="curriculo">Currículo (escreva abaixo ou anexe um arquivo)</label>
-        <textarea id="curriculo" rows="8"
-          placeholder="Descreva sua formação, experiências e habilidades..."></textarea>
+       <textarea id="curriculo" rows="8" minlength="30"
+  placeholder="Descreva sua formação, experiências e habilidades (mínimo de 30 caracteres)..."></textarea>
 
         <label for="arquivo">Anexar currículo (PDF ou TXT)</label>
         <input id="arquivo" type="file" accept=".pdf,.txt">
@@ -88,6 +88,16 @@
   .addEventListener('submit', function(evento) {
     evento.preventDefault();
 
+  const curriculo = document.getElementById('curriculo').value.trim();
+const arquivo = document.getElementById('arquivo').files[0];
+
+if (!arquivo && curriculo.length < 30) {
+  document.getElementById('mensagem').textContent =
+    'O currículo deve ter pelo menos 30 caracteres ou você deve anexar um arquivo.';
+
+  return;
+}
+    
     const candidatura = {
       id: Date.now(),
       nome: document.getElementById('nome').value,

@@ -411,11 +411,12 @@ lista.appendChild(card);
   const dashboard = document.getElementById('dashboard');
   const candidatos = document.getElementById('candidatos');
   const vagas = document.getElementById('vagas');
-
+  const analises = document.getElementById('analises');
+   
   dashboard.hidden = pagina !== 'dashboard';
   candidatos.hidden = pagina !== 'candidatos';
   vagas.hidden = pagina !== 'vagas';
-
+  analises.hidden = pagina !== 'analises';
   document.querySelectorAll('.menu a').forEach(link => {
     link.classList.toggle(
       'active',
@@ -426,7 +427,7 @@ lista.appendChild(card);
 
  
 
-document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos"], .menu a[href="#vagas"]')
+document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos"], .menu a[href="#vagas"], .menu a[href="#analises"]')
   .forEach(link => {
     link.addEventListener('click', function(evento) {
       evento.preventDefault();

@@ -616,7 +616,22 @@ carregarVagas();
       return;
     }
 
-    resultado.textContent = 'Candidato selecionado. Pronto para análise!';
+   const candidaturas = JSON.parse(
+  localStorage.getItem('talentosaas_candidaturas') || '[]'
+);
+
+const candidato = candidaturas.find(
+  item => String(item.id) === seletor.value
+);
+
+if (!candidato) {
+  resultado.textContent = 'Candidato não encontrado.';
+  return;
+}
+
+resultado.textContent =
+  'Preparando análise de ' + candidato.nome +
+  ' para a vaga ' + candidato.vaga;
   });
   
 </script>

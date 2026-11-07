@@ -635,9 +635,14 @@ resultado.textContent = 'Analisando currículo na AWS...';
 
 const dados = {
   curriculo: candidato.curriculo,
-  vaga: candidato.vaga
+  vaga: {
+    id: 'frontend-junior',
+    titulo: candidato.vaga,
+    obrigatorias: ['HTML', 'CSS', 'JavaScript'],
+    desejaveis: ['React'],
+    experienciaMinAnos: 0
+  }
 };
-
 try {
   const resposta = await fetch(AWS_ATS_URL, {
     method: 'POST',

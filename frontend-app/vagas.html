@@ -114,6 +114,40 @@
 
     document.getElementById('form-candidatura').reset();
   });
+
+    
+function carregarVagasDinamicas() {
+  const vagas = JSON.parse(
+    localStorage.getItem('talentosaas_vagas') || '[]'
+  );
+
+  const lista = document.getElementById('vagas-dinamicas');
+  lista.replaceChildren();
+
+  vagas.forEach((vaga) => {
+    const artigo = document.createElement('article');
+
+    const titulo = document.createElement('h3');
+    titulo.textContent = vaga.titulo;
+
+    const requisitos = document.createElement('p');
+    requisitos.textContent = 'Conhecimentos: ' + vaga.requisitos;
+
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.textContent = 'Candidatar-se';
+
+    botao.addEventListener('click', () => {
+      selecionarVaga(vaga.titulo);
+    });
+
+    artigo.append(titulo, requisitos, botao);
+    lista.appendChild(artigo);
+  });
+}
+
+carregarVagasDinamicas();
+
   </script>
 </body>
 </html>

@@ -426,6 +426,7 @@ function carregarVagas() {
     return;
   }
 
+
   vagas.forEach((vaga) => {
     const card = document.createElement('div');
     card.style.padding = '15px';
@@ -437,9 +438,36 @@ function carregarVagas() {
     const requisitos = document.createElement('p');
     requisitos.textContent = 'Conhecimentos: ' + vaga.requisitos;
 
-    card.append(titulo, requisitos);
+    // Botão para excluir a vaga
+    const botaoExcluir = document.createElement('button');
+    botaoExcluir.textContent = 'Excluir vaga';
+    botaoExcluir.type = 'button';
+    botaoExcluir.className = 'button';
+    botaoExcluir.style.border = 'none';
+    botaoExcluir.style.cursor = 'pointer';
+    botaoExcluir.style.background = '#a83232';
+
+    botaoExcluir.addEventListener('click', function() {
+      if (!confirm('Deseja realmente excluir esta vaga?')) {
+        return;
+      }
+
+      const vagasAtualizadas = vagas.filter(
+        (item) => item.id !== vaga.id
+      );
+
+      localStorage.setItem(
+        'talentosaas_vagas',
+        JSON.stringify(vagasAtualizadas)
+      );
+
+      carregarVagas();
+    });
+
+    card.append(titulo, requisitos, botaoExcluir);
     listaVagas.appendChild(card);
   });
+
 }
 
 formVaga.addEventListener('submit', function(evento) {

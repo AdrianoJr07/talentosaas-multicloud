@@ -609,7 +609,7 @@ carregarVagas();
   const AWS_ATS_URL = 'https://zxgibqzcwzqomj7wnbuibocdea0belvx.lambda-url.us-east-1.on.aws/';
   
   document.getElementById('btn-analisar')
-  .addEventListener('click', function() {
+  .addEventListener('click', async function() {
     const seletor = document.getElementById('selecionar-candidato');
     const resultado = document.getElementById('resultado-ats');
 
@@ -631,11 +631,34 @@ if (!candidato) {
   return;
 }
 
-resultado.textContent =
-  'Preparando análise de ' + candidato.nome +
-  ' para a vaga ' + candidato.vaga;
+resultado.textContent = 'Analisando currículo na AWS...';
+
+const dados = {
+  curriculo: candidato.curriculo,
+  vaga: candidato.vaga
+};
+
+try {
+  const resposta = await fetch(AWS_ATS_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
   });
-  
+
+  const analise = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(analise.erro || 'Erro na análise.');
+  }
+
+  resultado.textContent = JSON.stringify(analise, null, 2);
+
+} catch (erro) {
+  resultado.textContent = 'Erro: ' + erro.message;
+}
+  });
 </script>
 
 </body>

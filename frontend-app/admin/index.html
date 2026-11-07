@@ -633,13 +633,32 @@ if (!candidato) {
 
 resultado.textContent = 'Analisando currículo na AWS...';
 
+const vagas = JSON.parse(
+  localStorage.getItem('talentosaas_vagas') || '[]'
+);
+
+const vagaCadastrada = vagas.find(
+  item => item.titulo === candidato.vaga
+);
+
+if (!vagaCadastrada) {
+  resultado.textContent =
+    'Vaga não encontrada no cadastro. Verifique se ela está cadastrada no painel.';
+  return;
+}
+
+const requisitos = vagaCadastrada.requisitos
+  .split(/[,;\n]+|\s+e\s+/i)
+  .map(item => item.trim())
+  .filter(Boolean);
+
 const dados = {
   curriculo: candidato.curriculo,
   vaga: {
-    id: 'frontend-junior',
-    titulo: candidato.vaga,
-    obrigatorias: ['HTML', 'CSS', 'JavaScript'],
-    desejaveis: ['React'],
+    id: String(vagaCadastrada.id),
+    titulo: vagaCadastrada.titulo,
+    obrigatorias: requisitos,
+    desejaveis: [],
     experienciaMinAnos: 0
   }
 };

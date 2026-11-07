@@ -433,6 +433,32 @@ document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos
     });
   });
 
+  function carregarCandidatosATS() {
+  const candidaturas = JSON.parse(
+    localStorage.getItem('talentosaas_candidaturas') || '[]'
+  );
+
+  const seletor = document.getElementById('selecionar-candidato');
+
+  seletor.replaceChildren();
+
+  const opcaoInicial = document.createElement('option');
+  opcaoInicial.value = '';
+  opcaoInicial.textContent = 'Selecione um candidato';
+  seletor.appendChild(opcaoInicial);
+
+  candidaturas.forEach((candidato) => {
+    const opcao = document.createElement('option');
+
+    opcao.value = String(candidato.id);
+    opcao.textContent = `${candidato.nome} - ${candidato.vaga}`;
+
+    seletor.appendChild(opcao);
+  });
+}
+
+carregarCandidatosATS();
+  
 mostrarPagina('dashboard');
 
 // Cadastro de vagas no localStorage

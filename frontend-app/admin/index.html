@@ -659,7 +659,79 @@ try {
   return;
 }
 
-  resultado.textContent = JSON.stringify(analise, null, 2);
+  resultado.replaceChildren();
+
+const painel = document.createElement('div');
+painel.style.cssText = `
+  background: #14251f;
+  border: 1px solid #355247;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 20px;
+`;
+
+const titulo = document.createElement('h3');
+titulo.textContent = 'Resultado da análise ATS';
+
+const pontuacao = document.createElement('h2');
+pontuacao.textContent = analise.score + '/100';
+pontuacao.style.cssText = `
+  color: #32b59c;
+  font-size: 36px;
+  margin: 15px 0;
+`;
+
+const classificacao = document.createElement('p');
+classificacao.textContent =
+  'Classificação: ' + analise.classificacao;
+
+const barra = document.createElement('div');
+barra.style.cssText = `
+  width: 100%;
+  max-width: 500px;
+  height: 14px;
+  background: #34443e;
+  border-radius: 10px;
+  overflow: hidden;
+`;
+
+const progresso = document.createElement('div');
+progresso.style.cssText = `
+  height: 100%;
+  background: #32b59c;
+  border-radius: 10px;
+  width: ${Math.max(0, Math.min(100, Number(analise.score) || 0))}%;
+`;
+
+barra.appendChild(progresso);
+
+const recomendacao = document.createElement('p');
+recomendacao.textContent =
+  'Recomendação: ' + analise.recomendacao;
+recomendacao.style.marginTop = '20px';
+
+const competencias = document.createElement('p');
+competencias.textContent =
+  'Competências encontradas: ' +
+  (analise.competencias || [])
+    .filter(item => item.encontrada)
+    .map(item => item.nome)
+    .join(', ');
+
+if (!competencias.textContent.split(': ')[1]) {
+  competencias.textContent = 'Competências encontradas: nenhuma';
+}
+
+painel.append(
+  titulo,
+  pontuacao,
+  classificacao,
+  barra,
+  recomendacao,
+  competencias
+);
+
+resultado.appendChild(painel);
 
 } catch (erro) {
   resultado.textContent = 'Erro: ' + erro.message;

@@ -649,9 +649,10 @@ try {
 
   const analise = await resposta.json();
 
-  if (!resposta.ok) {
-    throw new Error(analise.erro || 'Erro na análise.');
-  }
+ if (!resposta.ok) {
+  resultado.textContent = JSON.stringify(analise, null, 2);
+  return;
+}
 
   resultado.textContent = JSON.stringify(analise, null, 2);
 

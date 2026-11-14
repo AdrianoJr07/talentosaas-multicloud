@@ -110,17 +110,39 @@ const escapar = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const regexDe = (termo) => new RegExp(`(?<![a-z0-9.])${escapar(termo)}(?![a-z0-9#+])`, 'g');
 
 /** Conta menções de uma competência (por qualquer sinônimo; sem contar a mesma posição duas vezes). */
+
 export function contarMencoes(textoNorm, competencia) {
   const termos = SINONIMOS[competencia] ?? [normalizar(competencia)];
   const posicoes = new Set();
+
   for (const t of [...termos].sort((a, b) => b.length - a.length)) {
     for (const m of textoNorm.matchAll(regexDe(t))) {
-      const ocupado = [...posicoes].some(([ini, fim]) => m.index < fim && m.index + m[0].length > ini);
-      if (!ocupado) posicoes.add([m.index, m.index + m[0].length]);
+      const inicioFrase = Math.max(
+        textoNorm.lastIndexOf('.', m.index),
+        textoNorm.lastIndexOf('\n', m.index),
+        textoNorm.lastIndexOf(';', m.index)
+      );
+
+      const contexto = textoNorm.slice(inicioFrase + 1, m.index);
+
+      const negacao = /\b(?:nao|nunca|sem)\b/.test(contexto);
+
+      if (negacao) continue;
+
+      const ocupado = [...posicoes].some(
+        ([ini, fim]) =>
+          m.index < fim && m.index + m[0].length > ini
+      );
+
+      if (!ocupado) {
+        posicoes.add([m.index, m.index + m[0].length]);
+      }
     }
   }
+
   return posicoes.size;
 }
+
 
 /** Anos de experiência: maior valor entre "N anos" explícito e a soma dos períodos (sem sobreposição). */
 export function estimarExperiencia(textoNorm) {

@@ -324,7 +324,24 @@
 
 <body>
 
-<div class="layout">
+<div id="tela-login" class="panel" style="max-width:420px;margin:100px auto;">
+  <h2>TalentoSaaS</h2>
+  <p>Acesso administrativo</p>
+
+  <form id="form-login">
+    <input type="email" id="login-email"
+           placeholder="E-mail" required>
+
+    <input type="password" id="login-senha"
+           placeholder="Senha" required>
+
+    <button type="submit" class="button">Entrar</button>
+  </form>
+
+  <p id="erro-login" role="alert"></p>
+</div>
+  
+<div class="layout" id="painel-admin" hidden>
 
   <aside class="sidebar">
 
@@ -336,9 +353,12 @@
   <a href="#candidatos">Candidatos</a>
   <a href="#vagas">Vagas</a>
   <a href="#analises">Análises ATS</a>
-  <a href="#salario">Calculadora de Salário</a>
-  <a href="../index.html">Ferramentas Multicloud</a>
-  <a href="../vagas.html">Visualizar site</a>
+ <a href="#salario">Calculadora de Salário</a>
+<a href="../index.html">Ferramentas Multicloud</a>
+<a href="../vagas.html">Visualizar site</a>
+<button type="button" id="btn-sair" class="button">
+  Sair
+</button>
 </nav>
 
   </aside>
@@ -483,9 +503,73 @@
    
 </main>
 
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 
 </div>
 <script>
+
+
+const SUPABASE_URL = 'https://klegkygqsqjlgutqygzq.supabase.co';
+
+const SUPABASE_KEY = 'sb_publishable_kErxiHSwPpdwV_W704DlpA_KXLx88Eh';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+  const telaLogin = document.getElementById('tela-login');
+const painelAdmin = document.getElementById('painel-admin');
+const erroLogin = document.getElementById('erro-login');
+
+async function verificarAcesso() {
+  const { data: { user }, error } =
+    await supabaseClient.auth.getUser();
+
+  let autorizado = false;
+
+  if (!error && user) {
+    const { data, error: erroPermissao } = await supabaseClient
+      .rpc('eh_admin');
+
+    autorizado = !erroPermissao && data === true;
+  }
+
+  telaLogin.hidden = autorizado;
+  painelAdmin.hidden = !autorizado;
+
+  if (user && !autorizado) {
+    erroLogin.textContent = 'Usuário sem permissão administrativa.';
+  }
+}
+
+document.getElementById('form-login')
+  .addEventListener('submit', async function(evento) {
+    evento.preventDefault();
+
+    const email = document.getElementById('login-email').value;
+    const senha = document.getElementById('login-senha').value;
+
+    erroLogin.textContent = 'Verificando acesso...';
+
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password: senha
+    });
+
+    if (error) {
+      erroLogin.textContent = 'E-mail ou senha inválidos.';
+      return;
+    }
+
+    erroLogin.textContent = '';
+    await verificarAcesso();
+  });
+
+verificarAcesso();
+  
   function carregarCandidaturas() {
     const candidaturas = JSON.parse(
       localStorage.getItem('talentosaas_candidaturas') || '[]'
@@ -963,12 +1047,24 @@ painel.append(titulo, destaque, grade);
       botao.disabled = false;
     }
   });
+document.getElementById('btn-sair')
+  .addEventListener('click', async function() {
+    const { error } = await supabaseClient.auth.signOut();
 
+    if (error) {
+      alert('Não foi possível sair. Tente novamente.');
+      return;
+    }
+
+    erroLogin.textContent = '';
+    telaLogin.hidden = false;
+    painelAdmin.hidden = true;
+    document.getElementById('form-login').reset();
+  });
   
 </script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
   
 </body>

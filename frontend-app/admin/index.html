@@ -258,6 +258,66 @@
   margin-top: 25px;
   line-height: 1.6;
 }
+
+
+/* Calculadora de salário */
+#salario {
+  max-width: 950px;
+}
+
+#salario h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+#form-salario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px !important;
+  max-width: 850px !important;
+  margin-top: 25px;
+}
+
+#form-salario label {
+  display: block;
+  color: #b5c8be;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: -12px;
+}
+
+#form-salario input,
+#form-salario select {
+  width: 100%;
+  min-width: 0;
+  padding: 15px;
+  background: #101816;
+  color: #ffffff;
+  border: 1px solid #355247;
+  border-radius: 9px;
+  font-size: 15px;
+}
+
+#form-salario input:focus,
+#form-salario select:focus {
+  outline: none;
+  border-color: #49c5a3;
+}
+
+#form-salario button {
+  grid-column: 1 / -1;
+  border: none;
+  padding: 16px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+@media (max-width: 650px) {
+  #form-salario {
+    grid-template-columns: 1fr;
+  }
+}
+
     
   </style>
 </head>
@@ -836,10 +896,63 @@ document.getElementById('form-salario')
       const titulo = document.createElement('h3');
       titulo.textContent = 'Resultado do cálculo';
 
-      const detalhes = document.createElement('pre');
-      detalhes.textContent = JSON.stringify(calculo, null, 2);
-      detalhes.style.cssText =
-        'white-space:pre-wrap;overflow-wrap:anywhere;color:#f1f5f3;';
+     
+const moeda = valor =>
+  Number(valor ?? 0).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+
+const dados = calculo.colaborador || {};
+const empresa = calculo.empresa || {};
+
+const criarCard = (nome, valor) => {
+  const card = document.createElement('div');
+  card.style.cssText = `
+    background:#1b3028;
+    border:1px solid #355247;
+    border-radius:10px;
+    padding:18px;
+  `;
+
+  const rotulo = document.createElement('p');
+  rotulo.textContent = nome;
+  rotulo.style.cssText =
+    'color:#aebdb4;font-size:13px;margin:0 0 10px;';
+
+  const numero = document.createElement('strong');
+  numero.textContent = moeda(valor);
+  numero.style.cssText =
+    'color:#ffffff;font-size:23px;';
+
+  card.append(rotulo, numero);
+  return card;
+};
+
+const destaque = criarCard(
+  'SALÁRIO LÍQUIDO',
+  dados.salarioLiquido
+);
+destaque.style.background = '#204536';
+
+const grade = document.createElement('div');
+grade.style.cssText = `
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  margin-top:20px;
+`;
+
+grade.append(
+  criarCard('Salário bruto', dados.salarioBruto),
+  criarCard('INSS', dados.inss),
+  criarCard('IRRF', dados.irrf),
+  criarCard('Vale-transporte', dados.valeTransporte),
+  criarCard('FGTS', dados.fgtsDeposito)
+);
+
+painel.append(titulo, destaque, grade);
+
 
       painel.append(titulo, detalhes);
       resultado.appendChild(painel);

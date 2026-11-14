@@ -24,29 +24,7 @@
       
       <div id="vagas-dinamicas"></div>
 
-      <article>
-        <h3>Desenvolvedor(a) Front-end Júnior</h3>
-        <p>Conhecimentos: HTML, CSS, JavaScript e React.</p>
-        <button type="button" onclick="selecionarVaga('Desenvolvedor(a) Front-end Júnior')">
-          Candidatar-se
-        </button>
-      </article>
-
-      <article>
-        <h3>Analista de Dados Júnior</h3>
-        <p>Conhecimentos: Python, SQL e Power BI.</p>
-        <button type="button" onclick="selecionarVaga('Analista de Dados Júnior')">
-          Candidatar-se
-        </button>
-      </article>
-
-      <article>
-        <h3>Desenvolvedor(a) Back-end Júnior</h3>
-        <p>Conhecimentos: Node.js, APIs REST e bancos de dados.</p>
-        <button type="button" onclick="selecionarVaga('Desenvolvedor(a) Back-end Júnior')">
-          Candidatar-se
-        </button>
-      </article>
+     
     </section>
 
     <section id="candidatura">
@@ -152,22 +130,58 @@ document.getElementById('form-candidatura')
 
 
     
-function carregarVagasDinamicas() {
-  const vagas = JSON.parse(
-    localStorage.getItem('talentosaas_vagas') || '[]'
-  );
 
+async function carregarVagasDinamicas() {
   const lista = document.getElementById('vagas-dinamicas');
+
+  lista.textContent = 'Carregando vagas disponíveis...';
+
+  const { data: vagas, error } = await supabaseClient
+    .from('vagas')
+    .select('id, titulo, descricao, requisitos, salario, regime_contratacao')
+    .eq('ativa', true)
+    .order('criado_em', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao carregar vagas:', error);
+    lista.textContent = 'Não foi possível carregar as vagas.';
+    return;
+  }
+
   lista.replaceChildren();
 
-  vagas.forEach((vaga) => {
+  if (!vagas || vagas.length === 0) {
+    lista.textContent = 'Nenhuma vaga disponível no momento.';
+    return;
+  }
+
+  const moeda = valor =>
+    Number(valor).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+
+  vagas.forEach(vaga => {
     const artigo = document.createElement('article');
 
     const titulo = document.createElement('h3');
     titulo.textContent = vaga.titulo;
 
+    const descricao = document.createElement('p');
+    descricao.textContent = vaga.descricao || '';
+
     const requisitos = document.createElement('p');
-    requisitos.textContent = 'Conhecimentos: ' + vaga.requisitos;
+    requisitos.textContent =
+      'Conhecimentos: ' + (vaga.requisitos || 'Não informados');
+
+    const salario = document.createElement('p');
+    salario.textContent = vaga.salario != null
+      ? 'Salário bruto: ' + moeda(vaga.salario)
+      : 'Salário a combinar';
+
+    const regime = document.createElement('p');
+    regime.textContent =
+      'Contratação: ' + (vaga.regime_contratacao || 'Não informada');
 
     const botao = document.createElement('button');
     botao.type = 'button';
@@ -177,12 +191,21 @@ function carregarVagasDinamicas() {
       selecionarVaga(vaga.titulo);
     });
 
-    artigo.append(titulo, requisitos, botao);
+    artigo.append(
+      titulo,
+      descricao,
+      requisitos,
+      salario,
+      regime,
+      botao
+    );
+
     lista.appendChild(artigo);
   });
 }
 
 carregarVagasDinamicas();
+
 
   </script>
 </body>

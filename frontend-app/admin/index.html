@@ -613,7 +613,10 @@ async function verificarAcesso() {
 
   telaLogin.hidden = autorizado;
   painelAdmin.hidden = !autorizado;
-
+  
+  if (autorizado) {
+  await carregarCandidaturas();
+}
   if (user && !autorizado) {
     erroLogin.textContent = 'Usuário sem permissão administrativa.';
   }
@@ -644,72 +647,72 @@ document.getElementById('form-login')
 
 verificarAcesso();
   
-  function carregarCandidaturas() {
-    const candidaturas = JSON.parse(
-      localStorage.getItem('talentosaas_candidaturas') || '[]'
-    );
+  
+async function carregarCandidaturas() {
+  const contador = document.getElementById('total-candidaturas');
+  const lista = document.getElementById('lista-candidatos');
 
-    const contador = document.getElementById('total-candidaturas');
-    const lista = document.getElementById('lista-candidatos');
+  lista.textContent = 'Carregando candidaturas...';
 
-    contador.textContent = candidaturas.length;
+  const { data: candidaturas, error } = await supabaseClient
+    .from('candidaturas')
+    .select('id, nome, email, vaga, curriculo, criado_em')
+    .order('criado_em', { ascending: false });
 
-    if (candidaturas.length === 0) {
-      lista.textContent = 'Nenhuma candidatura recebida até o momento.';
-      return;
-    }
-
-    lista.replaceChildren();
-
-    candidaturas.forEach((candidato) => {
-      const card = document.createElement('div');
-      card.style.padding = '15px';
-      card.style.borderBottom = '1px solid #304039';
-
-      const nome = document.createElement('h3');
-      nome.textContent = candidato.nome || 'Nome não informado';
-
-      const vaga = document.createElement('p');
-      vaga.textContent = 'Vaga: ' + (candidato.vaga || 'Não informada');
-
-      const email = document.createElement('p');
-email.textContent = 'E-mail: ' + (candidato.email || 'Não informado');
-
-// Botão para visualizar o currículo
-const botao = document.createElement('button');
-botao.textContent = 'Visualizar currículo';
-botao.className = 'button';
-botao.type = 'button';
-botao.style.border = 'none';
-botao.style.cursor = 'pointer';
-
-// Área onde o currículo será exibido
-const curriculo = document.createElement('div');
-curriculo.style.display = 'none';
-curriculo.style.marginTop = '15px';
-curriculo.style.padding = '15px';
-curriculo.style.background = '#101816';
-curriculo.style.borderRadius = '8px';
-curriculo.style.whiteSpace = 'pre-wrap';
-curriculo.style.overflowWrap = 'anywhere';
-
-curriculo.textContent =
-  candidato.curriculo || 'Nenhum currículo em texto informado.';
-
-// Abrir e fechar o currículo
-botao.addEventListener('click', function() {
-  const aberto = curriculo.style.display !== 'none';
-
-  curriculo.style.display = aberto ? 'none' : 'block';
-  botao.textContent = aberto
-    ? 'Visualizar currículo'
-    : 'Ocultar currículo';
-});
-
-card.append(nome, vaga, email, botao, curriculo);
-lista.appendChild(card);
-    });
+  if (error) {
+    console.error('Erro ao carregar candidaturas:', error);
+    lista.textContent = 'Não foi possível carregar as candidaturas.';
+    return;
   }
+
+  contador.textContent = candidaturas.length;
+  lista.replaceChildren();
+
+  if (candidaturas.length === 0) {
+    lista.textContent = 'Nenhuma candidatura recebida até o momento.';
+    return;
+  }
+
+  candidaturas.forEach((candidato) => {
+    const card = document.createElement('div');
+    card.style.cssText =
+      'padding:15px;border-bottom:1px solid #304039;';
+
+    const nome = document.createElement('h3');
+    nome.textContent = candidato.nome || 'Nome não informado';
+
+    const vaga = document.createElement('p');
+    vaga.textContent = 'Vaga: ' + (candidato.vaga || 'Não informada');
+
+    const email = document.createElement('p');
+    email.textContent = 'E-mail: ' + (candidato.email || 'Não informado');
+
+    const botao = document.createElement('button');
+    botao.textContent = 'Visualizar currículo';
+    botao.className = 'button';
+    botao.type = 'button';
+    botao.style.cssText = 'border:none;cursor:pointer;';
+
+    const curriculo = document.createElement('div');
+    curriculo.style.cssText =
+      'display:none;margin-top:15px;padding:15px;background:#101816;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere;';
+
+    curriculo.textContent =
+      candidato.curriculo || 'Nenhum currículo informado.';
+
+    botao.addEventListener('click', () => {
+      const aberto = curriculo.style.display !== 'none';
+      curriculo.style.display = aberto ? 'none' : 'block';
+      botao.textContent = aberto
+        ? 'Visualizar currículo'
+        : 'Ocultar currículo';
+    });
+
+    card.append(nome, vaga, email, botao, curriculo);
+    lista.appendChild(card);
+  });
+}
+
 
   carregarCandidaturas();
  function mostrarPagina(pagina) {

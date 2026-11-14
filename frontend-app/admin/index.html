@@ -1570,12 +1570,12 @@ if (erroSalvarTrilha) {
   console.error('Erro ao salvar trilha:', erroSalvarTrilha);
   alert('A trilha foi gerada, mas não foi possível salvá-la no Supabase.');
 } else {
-  console.log('Trilha salva no Supabase com sucesso!');
+  console.log('Trilha salva com sucesso!');
 
   const aviso = document.createElement('p');
   aviso.style.cssText =
     'color:#5ee0a0;font-weight:bold;margin-top:20px;';
-  aviso.textContent = '✓ Trilha salva no Supabase com sucesso!';
+  aviso.textContent = '✓ Trilha salva com sucesso!';
   painel.appendChild(aviso);
 }
 

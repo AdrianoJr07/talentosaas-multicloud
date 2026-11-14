@@ -1549,54 +1549,8 @@ document.getElementById('btn-gerar-trilha')
           dados.erro || 'Erro ao gerar trilha no Cloudflare.'
         );
       }
-
-      resultado.replaceChildren();
-
-      const painel = document.createElement('div');
-      painel.style.cssText =
-        'background:#14251f;padding:24px;border:1px solid #355247;border-radius:12px;margin-top:15px;';
-
-      const titulo = document.createElement('h3');
-      titulo.textContent = 'Trilha gerada pelo Cloudflare!';
-
-      const resumo = dados.resumo || {};
-
-      const pontuacao = document.createElement('p');
-      pontuacao.textContent =
-        `Score: ${resumo.scoreAtual ?? analise.pontuacao}/100`;
-
-      const duracao = document.createElement('p');
-      duracao.textContent =
-        `Duração: ${resumo.duracaoSemanas ?? 0} semanas — ${resumo.totalHoras ?? 0} horas`;
-
-      const mensagem = document.createElement('p');
-      mensagem.textContent = resumo.mensagem || '';
-
-      const lista = document.createElement('div');
-
-      (dados.trilha || []).forEach(item => {
-        const card = document.createElement('div');
-        card.style.cssText =
-          'padding:15px;margin-top:12px;background:#1b3028;border:1px solid #355247;border-radius:8px;';
-
-        const nome = document.createElement('strong');
-        nome.textContent = item.titulo;
-
-        const detalhes = document.createElement('p');
-        detalhes.textContent =
-          `${item.competencia} | ${item.plataforma} | ${item.horas}h | ${item.custo} | semanas ${item.semanaInicio}-${item.semanaFim}`;
-
-        card.append(nome, detalhes);
-        lista.appendChild(card);
-      });
-
-      if (!dados.trilha?.length) {
-        lista.textContent = 'Nenhum curso necessário para as lacunas identificadas.';
-      }
-
-      painel.append(titulo, pontuacao, duracao, mensagem, lista);
-      resultado.appendChild(painel);
-
+     
+  const painel = exibirTrilha(dados, analise.pontuacao);
 
 const { error: erroSalvarTrilha } = await supabaseClient
   .from('trilhas_capacitacao')

@@ -1550,8 +1550,8 @@ document.getElementById('btn-gerar-trilha')
         );
       }
      
-  const painel = exibirTrilha(dados, analise.pontuacao);
-
+const painel = exibirTrilha(dados, analise.pontuacao);
+const resumo = dados.resumo || {};
 const { error: erroSalvarTrilha } = await supabaseClient
   .from('trilhas_capacitacao')
   .upsert({

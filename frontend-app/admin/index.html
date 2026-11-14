@@ -498,26 +498,68 @@
 
   <h3>Nova vaga</h3>
 
-  <form id="form-vaga">
-    <label for="titulo-vaga">Título da vaga</label>
-    <input
-      type="text"
-      id="titulo-vaga"
-      placeholder="Ex.: Desenvolvedor Front-end Júnior"
-      required
-    >
+ 
+<form id="form-vaga">
 
-    <label for="requisitos-vaga">Conhecimentos necessários</label>
-    <textarea
-      id="requisitos-vaga"
-      placeholder="Ex.: HTML, CSS, JavaScript e React"
-      required
-    ></textarea>
+  <label for="titulo-vaga">Título da vaga</label>
+  <input
+    type="text"
+    id="titulo-vaga"
+    placeholder="Ex.: Desenvolvedor Front-end Júnior"
+    required
+  >
 
-    <button type="submit" class="button">
-      Cadastrar vaga
-    </button>
-  </form>
+  <label for="descricao-vaga">Descrição da vaga</label>
+  <textarea
+    id="descricao-vaga"
+    placeholder="Descreva as atividades e responsabilidades..."
+    required
+  ></textarea>
+
+  <label for="requisitos-vaga">Conhecimentos necessários</label>
+  <textarea
+    id="requisitos-vaga"
+    placeholder="Ex.: HTML, CSS, JavaScript, React"
+    required
+  ></textarea>
+
+  <label for="desejaveis-vaga">Competências desejáveis</label>
+  <textarea
+    id="desejaveis-vaga"
+    placeholder="Ex.: TypeScript, Git, testes automatizados"
+  ></textarea>
+
+  <label for="salario-vaga">Salário bruto (R$)</label>
+  <input
+    type="number"
+    id="salario-vaga"
+    min="0"
+    step="0.01"
+    placeholder="Ex.: 4500"
+    required
+  >
+
+  <label for="regime-vaga">Regime de contratação</label>
+  <select id="regime-vaga" required>
+    <option value="CLT">CLT</option>
+    <option value="PJ">PJ</option>
+    <option value="Estágio">Estágio</option>
+  </select>
+
+  <label for="experiencia-vaga">Experiência mínima (anos)</label>
+  <input
+    type="number"
+    id="experiencia-vaga"
+    min="0"
+    value="0"
+    required
+  >
+
+  <button type="submit" class="button">
+    Cadastrar vaga
+  </button>
+
+</form>
 
   <h3>Vagas cadastradas</h3>
   <div id="lista-vagas"></div>
@@ -773,27 +815,36 @@ carregarCandidatosATS();
   
 mostrarPagina('dashboard');
 
-// Cadastro de vagas no localStorage
+
+// Gerenciamento de vagas pelo Supabase
 const formVaga = document.getElementById('form-vaga');
 const listaVagas = document.getElementById('lista-vagas');
 
-function carregarVagas() {
-  const vagas = JSON.parse(
-    localStorage.getItem('talentosaas_vagas') || '[]'
-  );
+async function carregarVagas() {
+  listaVagas.textContent = 'Carregando vagas...';
+
+  const { data: vagas, error } = await supabaseClient
+    .from('vagas')
+    .select('id, titulo, requisitos, salario, ativa')
+    .order('criado_em', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao carregar vagas:', error);
+    listaVagas.textContent = 'Erro ao carregar vagas.';
+    return;
+  }
 
   listaVagas.replaceChildren();
 
-  if (vagas.length === 0) {
+  if (!vagas || vagas.length === 0) {
     listaVagas.textContent = 'Nenhuma vaga cadastrada ainda.';
     return;
   }
 
-
-  vagas.forEach((vaga) => {
+  vagas.forEach(vaga => {
     const card = document.createElement('div');
-    card.style.padding = '15px';
-    card.style.borderBottom = '1px solid #304039';
+    card.style.cssText =
+      'padding:15px;border-bottom:1px solid #304039;';
 
     const titulo = document.createElement('h3');
     titulo.textContent = vaga.titulo;
@@ -801,64 +852,84 @@ function carregarVagas() {
     const requisitos = document.createElement('p');
     requisitos.textContent = 'Conhecimentos: ' + vaga.requisitos;
 
-    // Botão para excluir a vaga
-    const botaoExcluir = document.createElement('button');
-    botaoExcluir.textContent = 'Excluir vaga';
-    botaoExcluir.type = 'button';
-    botaoExcluir.className = 'button';
-    botaoExcluir.style.border = 'none';
-    botaoExcluir.style.cursor = 'pointer';
-    botaoExcluir.style.background = '#a83232';
+    const salario = document.createElement('p');
+    salario.textContent = vaga.salario != null
+      ? 'Salário bruto: ' + Number(vaga.salario)
+          .toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          })
+      : 'Salário a combinar';
 
-    botaoExcluir.addEventListener('click', function() {
-      if (!confirm('Deseja realmente excluir esta vaga?')) {
+    const status = document.createElement('p');
+    status.textContent = vaga.ativa ? 'Ativa' : 'Inativa';
+
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'button';
+    botao.textContent = vaga.ativa
+      ? 'Desativar vaga'
+      : 'Ativar vaga';
+
+    botao.addEventListener('click', async () => {
+      if (!confirm('Deseja alterar o status desta vaga?')) return;
+
+      const { error } = await supabaseClient
+        .from('vagas')
+        .update({ ativa: !vaga.ativa })
+        .eq('id', vaga.id);
+
+      if (error) {
+        console.error(error);
+        alert('Erro ao atualizar vaga.');
         return;
       }
 
-      const vagasAtualizadas = vagas.filter(
-        (item) => item.id !== vaga.id
-      );
-
-      localStorage.setItem(
-        'talentosaas_vagas',
-        JSON.stringify(vagasAtualizadas)
-      );
-
-      carregarVagas();
+      await carregarVagas();
     });
 
-    card.append(titulo, requisitos, botaoExcluir);
+    card.append(titulo, requisitos, salario, status, botao);
     listaVagas.appendChild(card);
   });
-
 }
 
-formVaga.addEventListener('submit', function(evento) {
+formVaga.addEventListener('submit', async function(evento) {
   evento.preventDefault();
 
-  const titulo = document.getElementById('titulo-vaga').value.trim();
-  const requisitos = document.getElementById('requisitos-vaga').value.trim();
+  const botao = formVaga.querySelector('button[type="submit"]');
+  botao.disabled = true;
 
-  if (!titulo || !requisitos) return;
+  const novaVaga = {
+    titulo: document.getElementById('titulo-vaga').value.trim(),
+    descricao: document.getElementById('descricao-vaga').value.trim(),
+    requisitos: document.getElementById('requisitos-vaga').value.trim(),
+    competencias_desejaveis: document.getElementById('desejaveis-vaga').value.trim(),
+    salario: Number(document.getElementById('salario-vaga').value),
+    regime_contratacao: document.getElementById('regime-vaga').value,
+    experiencia_minima: Number(document.getElementById('experiencia-vaga').value),
+    ativa: true
+  };
 
-  const vagas = JSON.parse(
-    localStorage.getItem('talentosaas_vagas') || '[]'
-  );
+  try {
+    const { error } = await supabaseClient
+      .from('vagas')
+      .insert([novaVaga]);
 
-  vagas.push({
-    id: Date.now(),
-    titulo: titulo,
-    requisitos: requisitos
-  });
+    if (error) throw error;
 
-  localStorage.setItem('talentosaas_vagas', JSON.stringify(vagas));
-
-  formVaga.reset();
-  carregarVagas();
+    alert('Vaga cadastrada com sucesso!');
+    formVaga.reset();
+    await carregarVagas();
+  } catch (erro) {
+    console.error('Erro ao cadastrar vaga:', erro);
+    alert('Não foi possível cadastrar a vaga.');
+  } finally {
+    botao.disabled = false;
+  }
 });
 
 carregarVagas();
-
+  
   const AWS_ATS_URL = 'https://zxgibqzcwzqomj7wnbuibocdea0belvx.lambda-url.us-east-1.on.aws/';
   
   document.getElementById('btn-analisar')

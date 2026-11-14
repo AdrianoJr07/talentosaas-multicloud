@@ -817,11 +817,8 @@ document.querySelectorAll('.menu a[href^="#"]')
     });
   });
 
-  function carregarCandidatosATS() {
-  const candidaturas = JSON.parse(
-    localStorage.getItem('talentosaas_candidaturas') || '[]'
-  );
-
+ 
+async function carregarCandidatosATS() {
   const seletor = document.getElementById('selecionar-candidato');
 
   seletor.replaceChildren();
@@ -831,15 +828,27 @@ document.querySelectorAll('.menu a[href^="#"]')
   opcaoInicial.textContent = 'Selecione um candidato';
   seletor.appendChild(opcaoInicial);
 
+  const { data: candidaturas, error } = await supabaseClient
+    .from('candidaturas')
+    .select('id, nome, vaga')
+    .order('criado_em', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao carregar candidatos no ATS:', error);
+    opcaoInicial.textContent = 'Erro ao carregar candidatos';
+    return;
+  }
+
   candidaturas.forEach((candidato) => {
     const opcao = document.createElement('option');
 
     opcao.value = String(candidato.id);
-    opcao.textContent = `${candidato.nome} - ${candidato.vaga}`;
+    opcao.textContent = `${candidato.nome} - ${candidato.vaga} (ID ${candidato.id})`;
 
     seletor.appendChild(opcao);
   });
 }
+
 
 carregarCandidatosATS();
   
@@ -974,50 +983,54 @@ carregarVagas();
       return;
     }
 
-   const candidaturas = JSON.parse(
-  localStorage.getItem('talentosaas_candidaturas') || '[]'
-);
+ 
+resultado.textContent = 'Buscando dados do candidato...';
 
-const candidato = candidaturas.find(
-  item => String(item.id) === seletor.value
-);
+const { data: candidato, error: erroCandidato } = await supabaseClient
+  .from('candidaturas')
+  .select('id, nome, vaga, curriculo')
+  .eq('id', seletor.value)
+  .single();
 
-if (!candidato) {
-  resultado.textContent = 'Candidato não encontrado.';
+if (erroCandidato || !candidato) {
+  console.error('Erro ao buscar candidato:', erroCandidato);
+  resultado.textContent = 'Candidato não encontrado no Supabase.';
   return;
 }
 
-resultado.textContent = 'Analisando currículo na AWS...';
+resultado.textContent = 'Buscando requisitos da vaga...';
 
-const vagas = JSON.parse(
-  localStorage.getItem('talentosaas_vagas') || '[]'
-);
+const { data: vagas, error: erroVaga } = await supabaseClient
+  .from('vagas')
+  .select('id, titulo, requisitos, competencias_desejaveis, experiencia_minima')
+  .eq('titulo', candidato.vaga)
+  .limit(1);
 
-const vagaCadastrada = vagas.find(
-  item => item.titulo === candidato.vaga
-);
-
-if (!vagaCadastrada) {
-  resultado.textContent =
-    'Vaga não encontrada no cadastro. Verifique se ela está cadastrada no painel.';
+if (erroVaga || !vagas || vagas.length === 0) {
+  console.error('Erro ao buscar vaga:', erroVaga);
+  resultado.textContent = 'Vaga correspondente não encontrada no Supabase.';
   return;
 }
 
-const requisitos = vagaCadastrada.requisitos
-  .split(/[,;\n]+|\s+e\s+/i)
-  .map(item => item.trim())
-  .filter(Boolean);
+const vagaCadastrada = vagas[0];
+
+const separarCompetencias = (texto) =>
+  String(texto || '')
+    .split(/[,;\n]+|\s+e\s+/i)
+    .map(item => item.trim())
+    .filter(Boolean);
 
 const dados = {
   curriculo: candidato.curriculo,
   vaga: {
     id: String(vagaCadastrada.id),
     titulo: vagaCadastrada.titulo,
-    obrigatorias: requisitos,
-    desejaveis: [],
-    experienciaMinAnos: 0
+    obrigatorias: separarCompetencias(vagaCadastrada.requisitos),
+    desejaveis: separarCompetencias(vagaCadastrada.competencias_desejaveis),
+    experienciaMinAnos: Number(vagaCadastrada.experiencia_minima || 0)
   }
 };
+
 try {
   const resposta = await fetch(AWS_ATS_URL, {
     method: 'POST',

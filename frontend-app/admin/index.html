@@ -1353,59 +1353,167 @@ painel.append(titulo, destaque, grade);
   });
 
   
+
 document.getElementById('btn-gerar-trilha')
   .addEventListener('click', async function() {
     const seletor = document.getElementById('selecionar-candidato-trilha');
     const resultado = document.getElementById('resultado-trilha');
+    const botao = this;
 
     if (!seletor.value) {
       resultado.textContent = 'Selecione um candidato primeiro.';
       return;
     }
 
-    resultado.textContent = 'Buscando análise ATS do candidato...';
+    botao.disabled = true;
+    resultado.textContent = 'Buscando análise ATS...';
 
-    const { data: analise, error } = await supabaseClient
-      .from('analises_ats')
-      .select('candidatura_id, pontuacao, competencias')
-      .eq('candidatura_id', seletor.value)
-      .maybeSingle();
+    try {
+      const { data: analise, error: erroATS } = await supabaseClient
+        .from('analises_ats')
+        .select('pontuacao, competencias')
+        .eq('candidatura_id', seletor.value)
+        .maybeSingle();
 
-    if (error) {
-      console.error('Erro ao buscar análise ATS:', error);
-      resultado.textContent = 'Erro ao consultar a análise ATS.';
-      return;
-    }
+      if (erroATS) throw erroATS;
 
-    if (!analise) {
+      if (!analise) {
+        resultado.textContent =
+          'Este candidato ainda não possui análise ATS. Analise o currículo primeiro.';
+        return;
+      }
+
+      const { data: candidato, error: erroCandidato } = await supabaseClient
+        .from('candidaturas')
+        .select('vaga')
+        .eq('id', seletor.value)
+        .single();
+
+      if (erroCandidato) throw erroCandidato;
+
+      const { data: vagas, error: erroVaga } = await supabaseClient
+        .from('vagas')
+        .select('requisitos, competencias_desejaveis')
+        .eq('titulo', candidato.vaga)
+        .limit(1);
+
+      if (erroVaga) throw erroVaga;
+
+      if (!vagas || vagas.length === 0) {
+        throw new Error('Vaga do candidato não encontrada.');
+      }
+
+      const separar = texto =>
+        String(texto || '')
+          .split(/[,;\n]+|\s+e\s+/i)
+          .map(item => item.trim())
+          .filter(Boolean);
+
+      const obrigatorias = separar(vagas[0].requisitos)
+        .map(nome => nome.toLowerCase());
+
+      const desejaveis = separar(vagas[0].competencias_desejaveis)
+        .map(nome => nome.toLowerCase());
+
+      const lacunas = (analise.competencias || [])
+        .filter(item => item.encontrada === false)
+        .map(item => {
+          const nome = String(item.nome || '').trim();
+          const chave = nome.toLowerCase();
+
+          return {
+            nome,
+            tipo: obrigatorias.includes(chave)
+              ? 'obrigatoria'
+              : desejaveis.includes(chave)
+                ? 'desejavel'
+                : 'desejavel'
+          };
+        })
+        .filter(item => item.nome);
+
+      resultado.textContent = 'Gerando trilha no Cloudflare...';
+
+      const resposta = await fetch(CLOUDFLARE_TRILHA_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          score: Number(analise.pontuacao),
+          lacunas,
+          horasSemanais: 6,
+          preferencia: 'gratuito',
+          incluirCertificacoes: true
+        })
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.erro || 'Erro ao gerar trilha no Cloudflare.'
+        );
+      }
+
+      resultado.replaceChildren();
+
+      const painel = document.createElement('div');
+      painel.style.cssText =
+        'background:#14251f;padding:24px;border:1px solid #355247;border-radius:12px;margin-top:15px;';
+
+      const titulo = document.createElement('h3');
+      titulo.textContent = 'Trilha gerada pelo Cloudflare!';
+
+      const resumo = dados.resumo || {};
+
+      const pontuacao = document.createElement('p');
+      pontuacao.textContent =
+        `Score: ${resumo.scoreAtual ?? analise.pontuacao}/100`;
+
+      const duracao = document.createElement('p');
+      duracao.textContent =
+        `Duração: ${resumo.duracaoSemanas ?? 0} semanas — ${resumo.totalHoras ?? 0} horas`;
+
+      const mensagem = document.createElement('p');
+      mensagem.textContent = resumo.mensagem || '';
+
+      const lista = document.createElement('div');
+
+      (dados.trilha || []).forEach(item => {
+        const card = document.createElement('div');
+        card.style.cssText =
+          'padding:15px;margin-top:12px;background:#1b3028;border:1px solid #355247;border-radius:8px;';
+
+        const nome = document.createElement('strong');
+        nome.textContent = item.titulo;
+
+        const detalhes = document.createElement('p');
+        detalhes.textContent =
+          `${item.competencia} | ${item.plataforma} | ${item.horas}h | ${item.custo} | semanas ${item.semanaInicio}-${item.semanaFim}`;
+
+        card.append(nome, detalhes);
+        lista.appendChild(card);
+      });
+
+      if (!dados.trilha?.length) {
+        lista.textContent = 'Nenhum curso necessário para as lacunas identificadas.';
+      }
+
+      painel.append(titulo, pontuacao, duracao, mensagem, lista);
+      resultado.appendChild(painel);
+
+      console.log('Trilha gerada pelo Cloudflare:', dados);
+
+    } catch (erro) {
+      console.error('Erro na trilha:', erro);
       resultado.textContent =
-        'Este candidato ainda não possui uma análise ATS. Analise o currículo primeiro.';
-      return;
+        'Não foi possível gerar a trilha: ' + erro.message;
+    } finally {
+      botao.disabled = false;
     }
-
-    const competenciasAusentes = (analise.competencias || [])
-      .filter(item => item.encontrada === false)
-      .map(item => item.nome);
-
-    resultado.replaceChildren();
-
-    const painel = document.createElement('div');
-    painel.style.cssText =
-      'background:#14251f;padding:24px;border:1px solid #355247;border-radius:12px;margin-top:15px;';
-
-    const titulo = document.createElement('h3');
-    titulo.textContent = 'Análise ATS encontrada!';
-
-    const pontuacao = document.createElement('p');
-    pontuacao.textContent = 'Score atual: ' + analise.pontuacao + '/100';
-
-    const lacunas = document.createElement('p');
-    lacunas.textContent = 'Competências ausentes: ' +
-      (competenciasAusentes.join(', ') || 'Nenhuma identificada');
-
-    painel.append(titulo, pontuacao, lacunas);
-    resultado.appendChild(painel);
   });
+
 
   
   document.getElementById('btn-sair')

@@ -490,7 +490,7 @@
 
       <div class="card">
         <h3>Candidatos analisados</h3>
-        <strong>0</strong>
+       <strong id="total-analisados">0</strong>
       </div>
 
     </section>
@@ -686,8 +686,9 @@ async function verificarAcesso() {
   telaLogin.hidden = autorizado;
   painelAdmin.hidden = !autorizado;
   
-  if (autorizado) {
+ if (autorizado) {
   await carregarCandidaturas();
+  await carregarTotalAnalisados();
 }
   if (user && !autorizado) {
     erroLogin.textContent = 'Usuário sem permissão administrativa.';
@@ -719,6 +720,23 @@ document.getElementById('form-login')
 
 verificarAcesso();
   
+
+async function carregarTotalAnalisados() {
+  const contador = document.getElementById('total-analisados');
+
+  const { count, error } = await supabaseClient
+    .from('analises_ats')
+    .select('id', { count: 'exact', head: true });
+
+  if (error) {
+    console.error('Erro ao contar análises ATS:', error);
+    contador.textContent = '—';
+    return;
+  }
+
+  contador.textContent = count ?? 0;
+}
+
   
 async function carregarCandidaturas() {
   const contador = document.getElementById('total-candidaturas');
@@ -1045,6 +1063,30 @@ try {
  if (!resposta.ok) {
   resultado.textContent = JSON.stringify(analise, null, 2);
   return;
+}
+
+const { error: erroSalvar } = await supabaseClient
+  .from('analises_ats')
+  .upsert(
+    {
+      candidatura_id: candidato.id,
+      pontuacao: Number(analise.score),
+      classificacao: analise.classificacao,
+      recomendacao: analise.recomendacao,
+      competencias: analise.competencias || [],
+      analisado_em: new Date().toISOString()
+    },
+    {
+      onConflict: 'candidatura_id'
+    }
+  );
+
+if (erroSalvar) {
+  console.error('Erro ao salvar análise ATS:', erroSalvar);
+  alert('A análise foi realizada, mas não foi possível salvar o resultado no Supabase.');
+} else {
+  console.log('Análise ATS salva no Supabase com sucesso!');
+  await carregarTotalAnalisados();
 }
 
   resultado.replaceChildren();

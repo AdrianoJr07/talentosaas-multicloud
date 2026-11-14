@@ -1503,6 +1503,35 @@ document.getElementById('btn-gerar-trilha')
       painel.append(titulo, pontuacao, duracao, mensagem, lista);
       resultado.appendChild(painel);
 
+
+const { error: erroSalvarTrilha } = await supabaseClient
+  .from('trilhas_capacitacao')
+  .upsert({
+    candidatura_id: Number(seletor.value),
+    score_atual: Number(resumo.scoreAtual ?? analise.pontuacao),
+    score_projetado: Number(resumo.scoreProjetado ?? analise.pontuacao),
+    resumo: dados.resumo || {},
+    trilha: dados.trilha || [],
+    certificacoes: dados.certificacoes || [],
+    gerado_em: new Date().toISOString()
+  }, {
+    onConflict: 'candidatura_id'
+  });
+
+if (erroSalvarTrilha) {
+  console.error('Erro ao salvar trilha:', erroSalvarTrilha);
+  alert('A trilha foi gerada, mas não foi possível salvá-la no Supabase.');
+} else {
+  console.log('Trilha salva no Supabase com sucesso!');
+
+  const aviso = document.createElement('p');
+  aviso.style.cssText =
+    'color:#5ee0a0;font-weight:bold;margin-top:20px;';
+  aviso.textContent = '✓ Trilha salva no Supabase com sucesso!';
+  painel.appendChild(aviso);
+}
+
+      
       console.log('Trilha gerada pelo Cloudflare:', dados);
 
     } catch (erro) {

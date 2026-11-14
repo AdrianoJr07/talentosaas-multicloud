@@ -1409,6 +1409,45 @@ function exibirTrilha(dados, scoreAlternativo = 0, salva = false) {
 }
 
 
+document.getElementById('selecionar-candidato-trilha')
+  .addEventListener('change', async function() {
+    const resultado = document.getElementById('resultado-trilha');
+    const candidaturaId = this.value;
+
+    resultado.replaceChildren();
+
+    if (!candidaturaId) return;
+
+    resultado.textContent = 'Buscando trilha salva no Supabase...';
+
+    try {
+      const { data: trilhaSalva, error } = await supabaseClient
+        .from('trilhas_capacitacao')
+        .select('score_atual, resumo, trilha')
+        .eq('candidatura_id', candidaturaId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!trilhaSalva) {
+        resultado.textContent =
+          'Este candidato ainda não possui uma trilha salva. Clique em "Gerar trilha de capacitação".';
+        return;
+      }
+
+      exibirTrilha({
+        resumo: trilhaSalva.resumo,
+        trilha: trilhaSalva.trilha
+      }, trilhaSalva.score_atual, true);
+
+    } catch (erro) {
+      console.error('Erro ao recuperar trilha:', erro);
+      resultado.textContent =
+        'Não foi possível recuperar a trilha: ' + erro.message;
+    }
+  });
+
+  
 document.getElementById('btn-gerar-trilha')
   .addEventListener('click', async function() {
     const seletor = document.getElementById('selecionar-candidato-trilha');

@@ -944,17 +944,15 @@ grade.style.cssText = `
 `;
 
 grade.append(
-  criarCard('Salário bruto', dados.salarioBruto),
-  criarCard('INSS', dados.inss),
-  criarCard('IRRF', dados.irrf),
-  criarCard('Vale-transporte', dados.valeTransporte),
-  criarCard('FGTS', dados.fgtsDeposito)
+  criarCard('Salário bruto', colaborador.salarioBruto),
+  criarCard('INSS', colaborador.inss),
+  criarCard('IRRF', colaborador.irrf),
+  criarCard('Vale-transporte', colaborador.valeTransporte),
+  criarCard('FGTS', colaborador.fgtsDeposito)
 );
 
 painel.append(titulo, destaque, grade);
 
-
-      painel.append(titulo, detalhes);
       resultado.appendChild(painel);
 
     } catch (erro) {

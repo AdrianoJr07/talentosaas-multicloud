@@ -903,7 +903,7 @@ const moeda = valor =>
     currency: 'BRL'
   });
 
-const dados = calculo.colaborador || {};
+const colaborador = calculo.colaborador || {};
 const empresa = calculo.empresa || {};
 
 const criarCard = (nome, valor) => {
@@ -931,7 +931,7 @@ const criarCard = (nome, valor) => {
 
 const destaque = criarCard(
   'SALÁRIO LÍQUIDO',
-  dados.salarioLiquido
+  colaborador.salarioLiquido
 );
 destaque.style.background = '#204536';
 

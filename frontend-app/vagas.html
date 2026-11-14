@@ -76,7 +76,19 @@
     </section>
   </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  
   <script>
+
+const SUPABASE_URL = 'https://klegkygqsqjlgutqygzq.supabase.co';
+
+const SUPABASE_KEY = 'sb_publishable_kErxiHSwPpdwV_W704DlpA_KXLx88Eh';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+    
     function selecionarVaga(nome) {
       document.getElementById('vaga').value = nome;
       document.getElementById('candidatura').scrollIntoView({
@@ -84,46 +96,60 @@
       });
     }
 
-    document.getElementById('form-candidatura')
-  .addEventListener('submit', function(evento) {
+    
+document.getElementById('form-candidatura')
+  .addEventListener('submit', async function(evento) {
     evento.preventDefault();
 
-  const curriculo = document.getElementById('curriculo').value.trim();
-const arquivo = document.getElementById('arquivo').files[0];
+    const mensagem = document.getElementById('mensagem');
+    const formulario = document.getElementById('form-candidatura');
+    const botao = formulario.querySelector('button[type="submit"]');
 
-if (!arquivo && curriculo.length < 30) {
-  document.getElementById('mensagem').textContent =
-    'O currículo deve ter pelo menos 30 caracteres ou você deve anexar um arquivo.';
+    const curriculo = document.getElementById('curriculo').value.trim();
+    const arquivo = document.getElementById('arquivo').files[0];
 
-  return;
-}
-    
+    if (arquivo) {
+      mensagem.textContent =
+        'Por enquanto, envie seu currículo pelo campo de texto.';
+      return;
+    }
+
+    if (curriculo.length < 30) {
+      mensagem.textContent =
+        'O currículo deve ter pelo menos 30 caracteres.';
+      return;
+    }
+
     const candidatura = {
-      id: Date.now(),
-      nome: document.getElementById('nome').value,
-      email: document.getElementById('email').value,
-      vaga: document.getElementById('vaga').value,
-      curriculo: document.getElementById('curriculo').value,
-      data: new Date().toLocaleString('pt-BR'),
-      status: 'Pendente'
+      nome: document.getElementById('nome').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      vaga: document.getElementById('vaga').value.trim(),
+      curriculo: curriculo
     };
 
-    const candidaturas = JSON.parse(
-      localStorage.getItem('talentosaas_candidaturas') || '[]'
-    );
+    botao.disabled = true;
+    mensagem.textContent = 'Enviando candidatura...';
 
-    candidaturas.push(candidatura);
+    try {
+      const { error } = await supabaseClient
+        .from('candidaturas')
+        .insert([candidatura]);
 
-    localStorage.setItem(
-      'talentosaas_candidaturas',
-      JSON.stringify(candidaturas)
-    );
+      if (error) throw error;
 
-    document.getElementById('mensagem').textContent =
-      'Candidatura registrada com sucesso!';
+      mensagem.textContent =
+        'Candidatura registrada com sucesso!';
 
-    document.getElementById('form-candidatura').reset();
+      formulario.reset();
+    } catch (erro) {
+      console.error('Erro ao cadastrar candidatura:', erro);
+      mensagem.textContent =
+        'Não foi possível enviar a candidatura. Tente novamente.';
+    } finally {
+      botao.disabled = false;
+    }
   });
+
 
     
 function carregarVagasDinamicas() {

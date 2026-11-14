@@ -276,6 +276,7 @@
   <a href="#candidatos">Candidatos</a>
   <a href="#vagas">Vagas</a>
   <a href="#analises">Análises ATS</a>
+  <a href="#salario">Calculadora de Salário</a>
   <a href="../index.html">Ferramentas Multicloud</a>
   <a href="../vagas.html">Visualizar site</a>
 </nav>
@@ -391,6 +392,35 @@
   <div id="resultado-ats" style="margin-top: 25px;"></div>
 </section>
 
+<!-- CALCULADORA DE SALÁRIO -->
+<section class="panel" id="salario" hidden>
+  <h2>Calculadora de Salário</h2>
+  <p>Calcule o salário líquido e os encargos utilizando o Azure.</p>
+
+  <form id="form-salario" style="display: grid; gap: 15px; max-width: 600px;">
+    <label for="salario-bruto">Salário bruto (R$)</label>
+    <input id="salario-bruto" type="number" min="1621" step="0.01"
+           placeholder="Ex.: 3500" required>
+
+    <label for="dependentes">Número de dependentes</label>
+    <input id="dependentes" type="number" min="0" max="15" value="0" required>
+
+    <label for="regime">Regime tributário da empresa</label>
+    <select id="regime">
+      <option value="lucro_presumido">Lucro presumido</option>
+      <option value="simples">Simples Nacional</option>
+    </select>
+
+    <label for="vale-transporte">Vale-transporte (R$)</label>
+    <input id="vale-transporte" type="number" min="0" max="3000"
+           step="0.01" value="0" required>
+
+    <button type="submit" class="button">Calcular salário</button>
+  </form>
+
+  <div id="resultado-salario" style="margin-top: 25px;"></div>
+</section>
+   
 </main>
 
 
@@ -469,11 +499,13 @@ lista.appendChild(card);
   const candidatos = document.getElementById('candidatos');
   const vagas = document.getElementById('vagas');
   const analises = document.getElementById('analises');
+  const salario = document.getElementById('salario');
    
   dashboard.hidden = pagina !== 'dashboard';
   candidatos.hidden = pagina !== 'candidatos';
   vagas.hidden = pagina !== 'vagas';
   analises.hidden = pagina !== 'analises';
+  salario.hidden = pagina !== 'salario';
   document.querySelectorAll('.menu a').forEach(link => {
     link.classList.toggle(
       'active',
@@ -484,7 +516,7 @@ lista.appendChild(card);
 
  
 
-document.querySelectorAll('.menu a[href="#dashboard"], .menu a[href="#candidatos"], .menu a[href="#vagas"], .menu a[href="#analises"]')
+document.querySelectorAll('.menu a[href^="#"]')
   .forEach(link => {
     link.addEventListener('click', function(evento) {
       evento.preventDefault();
@@ -756,7 +788,74 @@ resultado.appendChild(painel);
   resultado.textContent = 'Erro: ' + erro.message;
 }
   });
+
+
+const AZURE_SALARIO_URL =
+  'https://talentosaas-salario.graybay-d6e2add8.brazilsouth.azurecontainerapps.io/api/salario-liquido';
+
+document.getElementById('form-salario')
+  .addEventListener('submit', async function(evento) {
+    evento.preventDefault();
+
+    const resultado = document.getElementById('resultado-salario');
+    const botao = this.querySelector('button[type="submit"]');
+
+    const dados = {
+      salarioBruto: Number(document.getElementById('salario-bruto').value),
+      dependentes: Number(document.getElementById('dependentes').value),
+      regime: document.getElementById('regime').value,
+      valeTransporte: Number(document.getElementById('vale-transporte').value)
+    };
+
+    resultado.textContent = 'Calculando no Azure...';
+    botao.disabled = true;
+
+    try {
+      const resposta = await fetch(AZURE_SALARIO_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dados)
+      });
+
+      const calculo = await resposta.json();
+
+      if (!resposta.ok) {
+        resultado.textContent =
+          'Erro no cálculo: ' + JSON.stringify(calculo);
+        return;
+      }
+
+      resultado.replaceChildren();
+
+      const painel = document.createElement('div');
+      painel.style.cssText =
+        'background:#14251f;padding:24px;border:1px solid #355247;border-radius:12px;';
+
+      const titulo = document.createElement('h3');
+      titulo.textContent = 'Resultado do cálculo';
+
+      const detalhes = document.createElement('pre');
+      detalhes.textContent = JSON.stringify(calculo, null, 2);
+      detalhes.style.cssText =
+        'white-space:pre-wrap;overflow-wrap:anywhere;color:#f1f5f3;';
+
+      painel.append(titulo, detalhes);
+      resultado.appendChild(painel);
+
+    } catch (erro) {
+      resultado.textContent =
+        'Não foi possível conectar ao Azure: ' + erro.message;
+    } finally {
+      botao.disabled = false;
+    }
+  });
+
+  
 </script>
 
+
+  
 </body>
 </html>

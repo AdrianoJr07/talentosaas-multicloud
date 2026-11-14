@@ -23,7 +23,8 @@
 }
 
 #form-vaga input,
-#form-vaga textarea {
+#form-vaga textarea,
+#form-vaga select {
   width: 100%;
   padding: 14px;
   background: #101816;
@@ -40,7 +41,8 @@
 }
 
 #form-vaga input:focus,
-#form-vaga textarea:focus {
+#form-vaga textarea:focus,
+#form-vaga select:focus {
   outline: none;
   border-color: #32947c;
 }
@@ -392,6 +394,34 @@
 #btn-sair:hover {
   background: #c04545;
 }
+
+#lista-vagas {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+#lista-vagas .vaga-card {
+  background: #14251f;
+  border: 1px solid #355247;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+#lista-vagas .vaga-card h3 {
+  color: #ffffff;
+  margin-top: 0;
+}
+
+#lista-vagas .vaga-card p {
+  margin: 10px 0;
+}
+
+#lista-vagas .vaga-card button {
+  margin-top: 12px;
+  border: none;
+  cursor: pointer;
+}
     
   </style>
 </head>
@@ -449,8 +479,8 @@
     <section class="cards">
 
       <div class="card">
-        <h3>Vagas disponíveis</h3>
-        <strong>3</strong>
+       <h3>Vagas disponíveis</h3>
+<strong id="total-vagas">0</strong>
       </div>
 
      <div class="card">
@@ -821,6 +851,7 @@ const formVaga = document.getElementById('form-vaga');
 const listaVagas = document.getElementById('lista-vagas');
 
 async function carregarVagas() {
+  const contadorVagas = document.getElementById('total-vagas');
   listaVagas.textContent = 'Carregando vagas...';
 
   const { data: vagas, error } = await supabaseClient
@@ -833,7 +864,7 @@ async function carregarVagas() {
     listaVagas.textContent = 'Erro ao carregar vagas.';
     return;
   }
-
+  contadorVagas.textContent = vagas.filter(vaga => vaga.ativa).length;
   listaVagas.replaceChildren();
 
   if (!vagas || vagas.length === 0) {
@@ -841,13 +872,14 @@ async function carregarVagas() {
     return;
   }
 
-  vagas.forEach(vaga => {
-    const card = document.createElement('div');
-    card.style.cssText =
-      'padding:15px;border-bottom:1px solid #304039;';
+ 
+vagas.forEach(vaga => {
+  const card = document.createElement('div');
+  card.className = 'vaga-card';
 
-    const titulo = document.createElement('h3');
-    titulo.textContent = vaga.titulo;
+  const titulo = document.createElement('h3');
+  titulo.textContent = vaga.titulo;
+
 
     const requisitos = document.createElement('p');
     requisitos.textContent = 'Conhecimentos: ' + vaga.requisitos;

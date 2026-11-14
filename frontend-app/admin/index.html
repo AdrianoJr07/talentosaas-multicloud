@@ -457,9 +457,10 @@
   <a href="#candidatos">Candidatos</a>
   <a href="#vagas">Vagas</a>
   <a href="#analises">Análises ATS</a>
- <a href="#salario">Calculadora de Salário</a>
-<a href="../index.html">Ferramentas Multicloud</a>
-<a href="../vagas.html">Visualizar site</a>
+  <a href="#trilhas">Trilha de Capacitação</a>
+  <a href="#salario">Calculadora de Salário</a>
+  <a href="../index.html">Ferramentas Multicloud</a>
+  <a href="../vagas.html">Visualizar site</a>
 <button type="button" id="btn-sair" class="button">
   Sair
 </button>
@@ -618,6 +619,35 @@
   <div id="resultado-ats" style="margin-top: 25px;"></div>
 </section>
 
+
+<!-- TRILHA DE CAPACITAÇÃO -->
+<section class="panel" id="trilhas" hidden>
+  <h2>Trilha de Capacitação</h2>
+  <p>
+    Gere trilhas personalizadas para os candidatos
+    utilizando o Cloudflare Workers.
+  </p>
+
+  <h3>Selecionar candidato</h3>
+
+  <select id="selecionar-candidato-trilha"
+    style="width:100%;max-width:600px;padding:14px;
+    background:#101816;color:white;
+    border:1px solid #304039;border-radius:8px;">
+    <option value="">Selecione um candidato</option>
+  </select>
+
+  <div style="margin-top:20px;">
+    <button type="button" class="button" id="btn-gerar-trilha"
+      style="border:none;cursor:pointer;">
+      Gerar trilha de capacitação
+    </button>
+  </div>
+
+  <div id="resultado-trilha" style="margin-top:25px;"></div>
+</section>
+
+   
 <!-- CALCULADORA DE SALÁRIO -->
 <section class="panel" id="salario" hidden>
   <h2>Calculadora de Salário</h2>
@@ -810,12 +840,14 @@ async function carregarCandidaturas() {
   const candidatos = document.getElementById('candidatos');
   const vagas = document.getElementById('vagas');
   const analises = document.getElementById('analises');
+  const trilhas = document.getElementById('trilhas');
   const salario = document.getElementById('salario');
    
   dashboard.hidden = pagina !== 'dashboard';
   candidatos.hidden = pagina !== 'candidatos';
   vagas.hidden = pagina !== 'vagas';
   analises.hidden = pagina !== 'analises';
+  trilhas.hidden = pagina !== 'trilhas';
   salario.hidden = pagina !== 'salario';
   document.querySelectorAll('.menu a').forEach(link => {
     link.classList.toggle(
